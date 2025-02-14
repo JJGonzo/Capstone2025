@@ -1,0 +1,35 @@
+Core OSINT Tools
+theHarvester – Gathers emails, subdomains, and IP addresses.
+Recon-ng – Automates reconnaissance tasks.
+SpiderFoot – An OSINT automation framework.
+Shodan & Censys – Finds exposed devices and servers.
+
+Web Scraping & Crawling
+Scrapy – Large-scale web crawling and data extraction.
+BeautifulSoup – Parses HTML pages for structured data.
+Selenium – Interacts with JavaScript-heavy sites.
+Diffbot – AI-powered web page analysis.
+
+Dark Web Intelligence
+OnionSearch – Searches .onion sites.
+TorBot – Crawls the dark web through Tor.
+OnionScan – Analyzes hidden services.
+Tor – Required for dark web access.
+
+Username, Social Media & Credential Analysis
+Sherlock – Finds usernames across 300+ sites.
+Holehe – Checks if an email is registered on social media.
+Social Analyzer – Advanced profile lookup.
+h8mail – Finds breached emails & passwords.
+
+Cryptocurrency & Financial Forensics
+Bitquery – API-based blockchain intelligence.
+Blockchain Explorer – Web-based blockchain tracker.
+
+Metadata & File Analysis
+ExifTool – Extracts metadata from files.
+Metagoofil – Extracts metadata from leaked documents.
+
+Secure System Setup & Storage
+Tor + ProxyChains – Routes all tool traffic through Tor.
+SQLite – Lightweight database for storing OSINT data. 
