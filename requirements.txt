@@ -1,0 +1,22 @@
+theHarvester
+Recon-ng
+SpiderFoot
+Shodan & Censys
+Scrapy
+BeautifulSoup
+Selenium
+Diffbot
+OnionSearch
+TorBot
+OnionScan
+Tor
+Sherlock
+Holehe
+Social Analyzer
+h8mail
+Bitquery
+Blockchain Explorer
+ExifTool
+Metagoofil
+Tor + ProxyChains
+SQLite
