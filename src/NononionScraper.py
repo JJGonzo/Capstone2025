@@ -3,7 +3,7 @@ import json
 
 # List of target domains to scan (Add more as needed)
 target_domains = [
-    "example.com",
+    "uwsp.edu",
     "news.ycombinator.com",
     "bbc.com",
     "theverge.com"
