@@ -18,7 +18,7 @@ class DarkWebScraper(scrapy.Spider):
         profile_path = "/home/munz/snap/firefox/common/.mozilla/firefox/v0pl6ivt.Selenium-Profile"
         options.set_preference("profile", profile_path)
 
-        self.driver = webdriver.Firefox(options=options)
+        self.driver = webdriver.Firefox(options=options)  # Ensure this line is indented properly
 
     def parse(self, response):
         self.driver.get(response.url)
