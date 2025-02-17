@@ -1,24 +1,36 @@
 import requests
 from bs4 import BeautifulSoup
 
-# Regular website for testing
+# Define target website
 url = "https://news.ycombinator.com/"
 
-# Make a request (NO NEED FOR TOR)
-response = requests.get(url)
+# Simulate a real browser with headers
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+}
 
-# Parse HTML
+# Fetch the webpage with error handling
+try:
+    response = requests.get(url, headers=headers, timeout=10)
+    response.raise_for_status()
+except requests.exceptions.RequestException as e:
+    print(f"Error fetching data: {e}")
+    exit()
+
+# Parse HTML content
 soup = BeautifulSoup(response.text, "html.parser")
 
-# Extract article titles
+# Extract article titles and links
 articles = []
 for item in soup.find_all("a", class_="storylink"):
-    title = item.text
-    link = item["href"]
+    title = item.text.strip()
+    link = item.get("href", "No link available")  # Handle missing links
     articles.append({"title": title, "link": link})
 
-# Print results
-for article in articles:
-    print(f"{article['title']} - {article['link']}")
-
-print("Scraper tested successfully on a normal website!")
+# Display results
+if articles:
+    for article in articles[:10]:  # Limit to first 10 results
+        print(f"{article['title']} - {article['link']}")
+    print("\nScraper tested successfully on a normal website!")
+else:
+    print("No articles found. The website structure might have changed.")
