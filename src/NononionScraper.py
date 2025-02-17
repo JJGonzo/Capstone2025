@@ -15,7 +15,7 @@ class DarkWebScraper(scrapy.Spider):
     def __init__(self):
         options = Options()
         options.headless = True  # Run in headless mode
-        profile_path = "/home/munz/snap/firefox/common/.mozilla/firefox/v0pl6ivt.Selenium-Profile"
+        profile_path = "/home/munz/snap/firefox/common/.mozilla/firefox/m2fjug6h.Default User"
         options.set_preference("profile", profile_path)
 
         self.driver = webdriver.Firefox(options=options)
