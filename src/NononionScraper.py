@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-# Define target website
+# Define the target URL
 url = "https://news.ycombinator.com/"
 
 # Simulate a real browser with headers
@@ -17,15 +17,17 @@ except requests.exceptions.RequestException as e:
     print(f"Error fetching data: {e}")
     exit()
 
-# Parse HTML content
+# Parse the HTML content
 soup = BeautifulSoup(response.text, "html.parser")
 
-# Extract article titles and links
+# Extract article titles and links using the new class "titleline"
 articles = []
-for item in soup.find_all("a", class_="storylink"):
-    title = item.text.strip()
-    link = item.get("href", "No link available")  # Handle missing links
-    articles.append({"title": title, "link": link})
+for item in soup.find_all("span", class_="titleline"):
+    title_tag = item.find("a")
+    if title_tag:
+        title = title_tag.text.strip()
+        link = title_tag.get("href", "No link available")
+        articles.append({"title": title, "link": link})
 
 # Display results
 if articles:
