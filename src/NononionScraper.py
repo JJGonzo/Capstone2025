@@ -14,14 +14,12 @@ class DarkWebScraper(scrapy.Spider):
     ]
 
     def __init__(self):
-        options = Options()
-        options.headless = True  # Run without GUI
-        
-        # Set correct Firefox profile path
-        profile_path = "/home/munz/snap/firefox/common/.mozilla/firefox/v0pl6ivt.Selenium-Profile"
-        options.profile = profile_path
+options = Options()
+options.headless = True  # Run in headless mode
+profile_path = "/home/munz/snap/firefox/common/.mozilla/firefox/v0pl6ivt.Selenium-Profile"
+options.set_preference("profile", profile_path)
 
-        self.driver = webdriver.Firefox(options=options)
+driver = webdriver.Firefox(options=options)
 
     def parse(self, response):
         """Extract usernames, emails, and crypto addresses."""
