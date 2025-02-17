@@ -1,43 +1,52 @@
-import scrapy
-import re
+import subprocess
 import json
 
-class DarkWebScraper(scrapy.Spider):
-    name = "dark_web_scraper"
+# List of target domains to scan (Add more as needed)
+target_domains = [
+    "example.com",
+    "news.ycombinator.com",
+    "bbc.com",
+    "theverge.com"
+]
 
-    # List of test websites (replace with .onion sites later)
-    start_urls = [
-        "https://news.ycombinator.com/",
-        "https://www.bbc.com/news",
-        "https://www.theverge.com/"
-    ]
+# Function to run theHarvester for a single domain
+def run_theHarvester(domain):
+    print(f"\n Running theHarvester for: {domain}")
+    command = f"theHarvester -d {domain} -b all -f {domain.replace('.', '_')}.json"
+    subprocess.run(command, shell=True)
 
-    def parse(self, response):
-        """Extract usernames, emails, and crypto addresses."""
-        text_content = response.text
+# Function to read results from theHarvester JSON output
+def parse_results(json_file):
+    try:
+        with open(json_file, "r") as file:
+            data = json.load(file)
 
-        # 🔍 Regex for data extraction
-        username_pattern = r"@[a-zA-Z0-9_]{3,15}"  # Example: @username
-        email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"  # Example: user@example.com
-        btc_address_pattern = r"\b[13][a-km-zA-HJ-NP-Z1-9]{25,34}\b"  # Bitcoin address
-        eth_address_pattern = r"\b0x[a-fA-F0-9]{40}\b"  # Ethereum address
+        emails = data.get("emails", [])
+        usernames = data.get("users", [])
 
-        # Extract matches
-        usernames = re.findall(username_pattern, text_content)
-        emails = re.findall(email_pattern, text_content)
-        btc_addresses = re.findall(btc_address_pattern, text_content)
-        eth_addresses = re.findall(eth_address_pattern, text_content)
+        return emails, usernames
+    except Exception as e:
+        print(f" Error reading JSON {json_file}: {e}")
+        return [], []
 
-        # Save results to JSON
-        data = {
-            "url": response.url,
-            "usernames": usernames,
+# Main function
+if __name__ == "__main__":
+    all_results = {}
+
+    for domain in target_domains:
+        run_theHarvester(domain)  # Run theHarvester on each domain
+        
+        # Parse results from each domain's output
+        json_filename = f"{domain.replace('.', '_')}.json"
+        emails, usernames = parse_results(json_filename)
+
+        all_results[domain] = {
             "emails": emails,
-            "btc_addresses": btc_addresses,
-            "eth_addresses": eth_addresses,
+            "usernames": usernames
         }
 
-        with open("results.json", "a") as file:
-            json.dump(data, file, indent=4)
+    # Save all extracted data to a single JSON file
+    with open("final_results.json", "w") as f:
+        json.dump(all_results, f, indent=4)
 
-        yield data
+    print("\n All data saved in final_results.json")
