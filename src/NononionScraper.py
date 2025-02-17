@@ -1,38 +1,36 @@
-import requests
-from bs4 import BeautifulSoup
+import scrapy
+import re
 
-# Define the target URL
-url = "https://news.ycombinator.com/"
+class DarkWebScraper(scrapy.Spider):
+    name = "dark_web_scraper"
+    
+    # List of test websites (Replace with .onion sites later)
+    start_urls = [
+        "https://news.ycombinator.com/",
+        "https://www.bbc.com/news",
+        "https://www.theverge.com/",
+    ]
 
-# Simulate a real browser with headers
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-}
+    def parse(self, response):
+        """Extract usernames, emails, and crypto addresses."""
+        text_content = response.text
 
-# Fetch the webpage with error handling
-try:
-    response = requests.get(url, headers=headers, timeout=10)
-    response.raise_for_status()
-except requests.exceptions.RequestException as e:
-    print(f"Error fetching data: {e}")
-    exit()
+        # Regex for common data types
+        username_pattern = r"@[a-zA-Z0-9_]{3,15}"  # Example: @username
+        email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+        btc_address_pattern = r"\b[13][a-km-zA-HJ-NP-Z1-9]{25,34}\b"  # Bitcoin address
+        eth_address_pattern = r"\b0x[a-fA-F0-9]{40}\b"  # Ethereum address
 
-# Parse the HTML content
-soup = BeautifulSoup(response.text, "html.parser")
+        # Find matches
+        usernames = re.findall(username_pattern, text_content)
+        emails = re.findall(email_pattern, text_content)
+        btc_addresses = re.findall(btc_address_pattern, text_content)
+        eth_addresses = re.findall(eth_address_pattern, text_content)
 
-# Extract article titles and links using the new class "titleline"
-articles = []
-for item in soup.find_all("span", class_="titleline"):
-    title_tag = item.find("a")
-    if title_tag:
-        title = title_tag.text.strip()
-        link = title_tag.get("href", "No link available")
-        articles.append({"title": title, "link": link})
-
-# Display results
-if articles:
-    for article in articles[:10]:  # Limit to first 10 results
-        print(f"{article['title']} - {article['link']}")
-    print("\nScraper tested successfully on a normal website!")
-else:
-    print("No articles found. The website structure might have changed.")
+        yield {
+            "url": response.url,
+            "usernames": usernames,
+            "emails": emails,
+            "btc_addresses": btc_addresses,
+            "eth_addresses": eth_addresses,
+        }
