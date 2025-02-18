@@ -5,29 +5,31 @@ import os
 # List of target domains to scan
 target_domains = ["uwsp.edu"]
 
-# Function to run theHarvester and ensure JSON file is saved
+# Function to run theHarvester and read the JSON output file
 def run_theHarvester(domain):
     print(f"\nRunning theHarvester for: {domain}")
 
     # Define output filename
     output_file = f"{domain.replace('.', '_')}.json"
-    
+
     # Run theHarvester with file output option
-    command = f"theHarvester -d {domain} -b bing -f {output_file}"
+    command = f"theHarvester -d {domain} -b all -f {output_file}"
     subprocess.run(command, shell=True)
 
-    # Ensure the file was created before reading
-    if os.path.exists(output_file):
-        try:
-            with open(output_file, "r") as f:
-                data = json.load(f)
-                return data  # Return parsed JSON
-        except json.JSONDecodeError as e:
-            print(f"Error parsing JSON file {output_file}: {e}")
-    else:
+    # Ensure JSON file exists
+    if not os.path.exists(output_file):
         print(f"Error: JSON file {output_file} not found.")
+        return {}
 
-    return {}  # Return empty dict if error occurs
+    try:
+        # Read and parse JSON file
+        with open(output_file, "r") as f:
+            data = json.load(f)
+        
+        return data  # Return parsed JSON data
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON file {output_file}: {e}")
+        return {}
 
 # Main function
 if __name__ == "__main__":
@@ -36,16 +38,11 @@ if __name__ == "__main__":
     for domain in target_domains:
         harvester_data = run_theHarvester(domain)  # Run theHarvester
 
-        if harvester_data and "emails" in harvester_data:
-            emails = harvester_data["emails"]
-        else:
-            emails = []
+        # Extract emails and usernames
+        emails = harvester_data.get("emails", [])
+        usernames = harvester_data.get("users", [])
 
-        if harvester_data and "users" in harvester_data:
-            usernames = harvester_data["users"]
-        else:
-            usernames = []
-
+        # Store extracted data
         all_results[domain] = {
             "emails": emails,
             "usernames": usernames
