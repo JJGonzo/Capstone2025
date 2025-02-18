@@ -1,41 +1,33 @@
 import subprocess
 import json
-import os
 
 # List of target domains to scan
-target_domains = [
-    "uwsp.edu",
-]
+target_domains = ["uwsp.edu"]
 
 # Function to run theHarvester and capture JSON output
 def run_theHarvester(domain):
     print(f"\nRunning theHarvester for: {domain}")
-    json_filename = f"{domain.replace('.', '_')}.json"
-    command = f"theHarvester -d {domain} -b bing -f {json_filename}"
+    command = f"theHarvester -d {domain} -b bing -j"  # Use bing explicitly
 
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        
+        # Print outputs for debugging
+        print(f"STDOUT: {result.stdout}")  
+        print(f"STDERR: {result.stderr}")  
 
-        # Debugging output
-        if result.returncode != 0:
-            print(f"Error running theHarvester for {domain}: {result.stderr}")
+        # Ensure stdout is not empty before parsing JSON
+        if result.stdout.strip():
+            return json.loads(result.stdout)
+        else:
+            print(f"No valid JSON output for {domain}")
             return {}
 
-        # Check if JSON file exists and has data
-        if not os.path.exists(json_filename) or os.path.getsize(json_filename) == 0:
-            print(f"Error: {json_filename} is empty or does not exist!")
-            return {}
-
-        # Read JSON output from the file
-        with open(json_filename, "r") as file:
-            try:
-                return json.load(file)
-            except json.JSONDecodeError as e:
-                print(f"Error parsing {json_filename}: {e}")
-                return {}
-
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON output for {domain}: {e}")
+        return {}
     except Exception as e:
-        print(f"Unexpected error: {e}")
+        print(f"Error running theHarvester for {domain}: {e}")
         return {}
 
 # Main function
@@ -43,11 +35,13 @@ if __name__ == "__main__":
     all_results = {}
 
     for domain in target_domains:
-        harvester_data = run_theHarvester(domain)
-
-        # Extract data safely
-        emails = harvester_data.get("emails", [])
-        usernames = harvester_data.get("users", [])
+        harvester_data = run_theHarvester(domain)  # Run theHarvester
+        
+        if harvester_data and "emails" in harvester_data and "users" in harvester_data:
+            emails = [email["email"] for email in harvester_data["emails"]]
+            usernames = harvester_data["users"]
+        else:
+            emails, usernames = [], []
 
         all_results[domain] = {
             "emails": emails,
