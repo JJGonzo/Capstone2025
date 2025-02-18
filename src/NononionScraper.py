@@ -8,27 +8,27 @@ target_domains = ["uwsp.edu"]
 # Function to run theHarvester and read the generated JSON file
 def run_theHarvester(domain):
     print(f"\nRunning theHarvester for: {domain}")
-    
+
     output_file = f"{domain.replace('.', '_')}.json"
-    command = f"theHarvester -d {domain} -b all -f {output_file}"  # Use Google instead of "all"
+    command = f"theHarvester -d {domain} -b google -f {output_file}"  # Use Google instead of "all"
 
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
         
-        # Debugging outputs
-        print(f"STDOUT: {result.stdout}")
-        print(f"STDERR: {result.stderr}")
+        # Print outputs for debugging
+        print(f"STDOUT: {result.stdout}")  
+        print(f"STDERR: {result.stderr}")  
 
-        # Ensure the JSON file was created before attempting to read it
+        # Check if the JSON file exists before reading it
         if os.path.exists(output_file):
             with open(output_file, "r") as file:
-                return json.load(file)  # Read JSON from the file
+                return json.load(file)
         else:
-            print(f"JSON file {output_file} not found.")
+            print(f"Error: JSON file {output_file} not found.")
             return {}
 
     except json.JSONDecodeError as e:
-        print(f"Error parsing JSON output from {output_file}: {e}")
+        print(f"Error parsing JSON output for {domain}: {e}")
         return {}
     except Exception as e:
         print(f"Error running theHarvester for {domain}: {e}")
@@ -57,4 +57,3 @@ if __name__ == "__main__":
         json.dump(all_results, f, indent=4)
 
     print("\nAll data saved in final_results.json")
-
