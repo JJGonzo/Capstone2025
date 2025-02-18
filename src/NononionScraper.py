@@ -10,7 +10,7 @@ def run_theHarvester(domain):
     print(f"\nRunning theHarvester for: {domain}")
     
     output_file = f"{domain.replace('.', '_')}.json"
-    command = f"theHarvester -d {domain} -b bing -f {output_file}"  # Use Google instead of "all"
+    command = f"theHarvester -d {domain} -b all -f {output_file}"  # Use Google instead of "all"
 
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
