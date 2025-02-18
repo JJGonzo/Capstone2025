@@ -5,34 +5,29 @@ import os
 # List of target domains to scan
 target_domains = ["uwsp.edu"]
 
-# Function to run theHarvester and read the generated JSON file
+# Function to run theHarvester and ensure JSON file is saved
 def run_theHarvester(domain):
     print(f"\nRunning theHarvester for: {domain}")
 
+    # Define output filename
     output_file = f"{domain.replace('.', '_')}.json"
-    command = f"theHarvester -d {domain} -b bing -f {output_file}"  # Use Google instead of "all"
+    
+    # Run theHarvester with file output option
+    command = f"theHarvester -d {domain} -b all -f {output_file}"
+    subprocess.run(command, shell=True)
 
-    try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
-        
-        # Print outputs for debugging
-        print(f"STDOUT: {result.stdout}")  
-        print(f"STDERR: {result.stderr}")  
+    # Ensure the file was created before reading
+    if os.path.exists(output_file):
+        try:
+            with open(output_file, "r") as f:
+                data = json.load(f)
+                return data  # Return parsed JSON
+        except json.JSONDecodeError as e:
+            print(f"Error parsing JSON file {output_file}: {e}")
+    else:
+        print(f"Error: JSON file {output_file} not found.")
 
-        # Check if the JSON file exists before reading it
-        if os.path.exists(output_file):
-            with open(output_file, "r") as file:
-                return json.load(file)
-        else:
-            print(f"Error: JSON file {output_file} not found.")
-            return {}
-
-    except json.JSONDecodeError as e:
-        print(f"Error parsing JSON output for {domain}: {e}")
-        return {}
-    except Exception as e:
-        print(f"Error running theHarvester for {domain}: {e}")
-        return {}
+    return {}  # Return empty dict if error occurs
 
 # Main function
 if __name__ == "__main__":
@@ -40,12 +35,16 @@ if __name__ == "__main__":
 
     for domain in target_domains:
         harvester_data = run_theHarvester(domain)  # Run theHarvester
-        
-        if harvester_data and "emails" in harvester_data and "users" in harvester_data:
-            emails = [email["email"] for email in harvester_data["emails"]]
+
+        if harvester_data and "emails" in harvester_data:
+            emails = harvester_data["emails"]
+        else:
+            emails = []
+
+        if harvester_data and "users" in harvester_data:
             usernames = harvester_data["users"]
         else:
-            emails, usernames = [], []
+            usernames = []
 
         all_results[domain] = {
             "emails": emails,
