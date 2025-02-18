@@ -8,14 +8,24 @@ target_domains = [
 
 # Function to run theHarvester and capture JSON output
 def run_theHarvester(domain):
-    print(f"\n Running theHarvester for: {domain}")
-    command = f"theHarvester -d {domain} -b all -j"
-    
+    print(f"\nRunning theHarvester for: {domain}")
+    command = f"theHarvester -d {domain} -b bing -f {domain.replace('.', '_')}.json"
+
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
-        return json.loads(result.stdout)  # Parse JSON output from theHarvester
+
+        # Check if theHarvester ran successfully
+        if result.returncode != 0:
+            print(f"Error running theHarvester for {domain}: {result.stderr}")
+            return {}
+
+        # Read JSON output from the saved file
+        json_filename = f"{domain.replace('.', '_')}.json"
+        with open(json_filename, "r") as file:
+            return json.load(file)
+
     except Exception as e:
-        print(f"Error running theHarvester for {domain}: {e}")
+        print(f"Error processing theHarvester output for {domain}: {e}")
         return {}
 
 # Main function
@@ -24,12 +34,10 @@ if __name__ == "__main__":
 
     for domain in target_domains:
         harvester_data = run_theHarvester(domain)  # Run theHarvester
-        
-        if "emails" in harvester_data and "users" in harvester_data:
-            emails = [email["email"] for email in harvester_data["emails"]]
-            usernames = harvester_data["users"]
-        else:
-            emails, usernames = [], []
+
+        # Extract data safely
+        emails = harvester_data.get("emails", [])
+        usernames = harvester_data.get("users", [])
 
         all_results[domain] = {
             "emails": emails,
@@ -40,4 +48,4 @@ if __name__ == "__main__":
     with open("final_results.json", "w") as f:
         json.dump(all_results, f, indent=4)
 
-    print("\n All data saved in final_results.json")
+    print("\nAll data saved in final_results.json")
