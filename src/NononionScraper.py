@@ -1,5 +1,6 @@
 import subprocess
 import json
+import os
 
 # List of target domains to scan
 target_domains = [
@@ -9,23 +10,32 @@ target_domains = [
 # Function to run theHarvester and capture JSON output
 def run_theHarvester(domain):
     print(f"\nRunning theHarvester for: {domain}")
-    command = f"theHarvester -d {domain} -b bing -f {domain.replace('.', '_')}.json"
+    json_filename = f"{domain.replace('.', '_')}.json"
+    command = f"theHarvester -d {domain} -b bing -f {json_filename}"
 
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
 
-        # Check if theHarvester ran successfully
+        # Debugging output
         if result.returncode != 0:
             print(f"Error running theHarvester for {domain}: {result.stderr}")
             return {}
 
-        # Read JSON output from the saved file
-        json_filename = f"{domain.replace('.', '_')}.json"
+        # Check if JSON file exists and has data
+        if not os.path.exists(json_filename) or os.path.getsize(json_filename) == 0:
+            print(f"Error: {json_filename} is empty or does not exist!")
+            return {}
+
+        # Read JSON output from the file
         with open(json_filename, "r") as file:
-            return json.load(file)
+            try:
+                return json.load(file)
+            except json.JSONDecodeError as e:
+                print(f"Error parsing {json_filename}: {e}")
+                return {}
 
     except Exception as e:
-        print(f"Error processing theHarvester output for {domain}: {e}")
+        print(f"Unexpected error: {e}")
         return {}
 
 # Main function
@@ -33,7 +43,7 @@ if __name__ == "__main__":
     all_results = {}
 
     for domain in target_domains:
-        harvester_data = run_theHarvester(domain)  # Run theHarvester
+        harvester_data = run_theHarvester(domain)
 
         # Extract data safely
         emails = harvester_data.get("emails", [])
