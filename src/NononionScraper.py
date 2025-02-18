@@ -7,7 +7,7 @@ target_domains = ["uwsp.edu"]
 # Function to run theHarvester and capture JSON output
 def run_theHarvester(domain):
     print(f"\nRunning theHarvester for: {domain}")
-    command = f"theHarvester -d {domain} -b bing -j"  # Use bing explicitly
+    command = f"theHarvester -d {domain} -b all -f {domain.replace('.', '_')}.json"
 
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
