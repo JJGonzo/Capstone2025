@@ -2,53 +2,42 @@ import subprocess
 import json
 import os
 
-# List of target domains to scan
+# Target domains to scan
 target_domains = ["uwsp.edu"]
 
-# Function to run theHarvester and read the JSON output file
 def run_theHarvester(domain):
     print(f"\nRunning theHarvester for: {domain}")
-
-    # Define output filename
     output_file = f"{domain.replace('.', '_')}.json"
 
-    # Run theHarvester with file output option
+    # Run theHarvester with JSON output
     command = f"theHarvester -d {domain} -b all -f {output_file}"
     subprocess.run(command, shell=True)
 
-    # Ensure JSON file exists
     if not os.path.exists(output_file):
         print(f"Error: JSON file {output_file} not found.")
         return {}
 
     try:
-        # Read and parse JSON file
         with open(output_file, "r") as f:
-            data = json.load(f)
-        
-        return data  # Return parsed JSON data
+            return json.load(f)  # Return parsed JSON data
     except json.JSONDecodeError as e:
-        print(f"Error parsing JSON file {output_file}: {e}")
+        print(f"Error parsing {output_file}: {e}")
         return {}
 
-# Main function
 if __name__ == "__main__":
     all_results = {}
 
     for domain in target_domains:
-        harvester_data = run_theHarvester(domain)  # Run theHarvester
+        data = run_theHarvester(domain)
 
-        # Extract emails and usernames
-        emails = harvester_data.get("emails", [])
-        usernames = harvester_data.get("users", [])
-
-        # Store extracted data
         all_results[domain] = {
-            "emails": emails,
-            "usernames": usernames
+            "emails": list(set(data.get("emails", []))),      # Remove duplicate emails
+            "usernames": list(set(data.get("users", []))),    # Remove duplicate usernames
+            "hosts": list(set(data.get("hosts", []))),        # Remove duplicate hosts
+            "ips": list(set(data.get("ips", [])))             # Remove duplicate IPs
         }
 
-    # Save extracted data to a JSON file
+    # Save results to JSON
     with open("final_results.json", "w") as f:
         json.dump(all_results, f, indent=4)
 
