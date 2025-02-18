@@ -10,7 +10,7 @@ def run_theHarvester(domain):
     output_file = f"{domain.replace('.', '_')}.json"
 
     # Run theHarvester with JSON output
-    command = f"theHarvester -d {domain} -b all -f {output_file}"
+    command = f"theHarvester -d {domain} -b bing -f {output_file}"
     subprocess.run(command, shell=True)
 
     if not os.path.exists(output_file):
