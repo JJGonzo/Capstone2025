@@ -4,9 +4,6 @@ import json
 # List of target domains to scan
 target_domains = [
     "uwsp.edu",
-    "news.ycombinator.com",
-    "bbc.com",
-    "theverge.com"
 ]
 
 # Function to run theHarvester and capture JSON output
