@@ -1,6 +1,7 @@
 # Capstone2025
 
-![darkpointimage](https://github.com/user-attachments/assets/a7a81d03-20bf-4e06-9d21-377843674a26)
+![darkpointimage](https://github.com/user-attachments/assets/7629ecaf-2167-4561-a4c7-c3d36067adef)
+
 
 Repo for UWSP Capstone 2025 
 This project focuses on developing an automated OSINT toolkit to help organizations or individuals gather and analyze intelligence from the dark web. Companies, cybersecurity teams, or law enforcement agencies could use this tool to monitor illicit activities, track threat actors, and analyze discussions on underground forums. Additionally, university students and researchers can use these tools to research hard to find information on the web. 
