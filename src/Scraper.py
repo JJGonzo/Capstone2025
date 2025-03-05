@@ -30,7 +30,7 @@ class DarkWebSpider(scrapy.Spider):
         # Handle 301 Redirects manually if needed
         if response.status == 301:
             redirected_url = response.headers.get("Location", "").decode()
-            self.log(f"🔄 Redirected to {redirected_url}")
+            self.log(f" Redirected to {redirected_url}")
 
             if redirected_url.startswith("http"):  # Ensures it's a valid redirect
                 yield scrapy.Request(
