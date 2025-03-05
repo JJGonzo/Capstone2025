@@ -8,11 +8,11 @@ TOR_PROXY = "http://127.0.0.1:8118"  # Privoxy acts as a bridge for Tor
 
 # ✅ List of Safe .onion Sites for Testing
 target_domains = [
-    "http://expyuzz4wqqyqhjn.onion",  # Tor Project
-    "http://duckduckgogg42xjoc72x3sjasowoarfbgcmvfimaftt6twagswzczad.onion",  # DuckDuckGo
-    "http://msydqstlz2kzerdg.onion",  # Ahmia Search Engine
-    "http://www.propub3r6espa33w.onion",  # ProPublica
-    "http://zqktlwiuavvvqqt4ybvgvi7tyo4hjl5xz5h3px5c5akk3qq4h4tzufqd.onion"  # The Hidden Wiki
+    "http://expyuzz4wqqyqhjn.onion",  # Tor Project (Official)
+    "http://duckduckgogg42xjoc72x3sjasowoarfbgcmvfimaftt6twagswzczad.onion",  # DuckDuckGo (Search)
+    "http://msydqstlz2kzerdg.onion",  # Ahmia (Search Engine)
+    "http://www.propub3r6espa33w.onion",  # ProPublica (News)
+    "http://zqktlwiuavvvqqt4ybvgvi7tyo4hjl5xz5h3px5c5akk3qq4h4tzufqd.onion"  # The Hidden Wiki (Directory)
 ]
 
 class DarkWebSpider(scrapy.Spider):
