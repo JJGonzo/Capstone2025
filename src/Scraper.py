@@ -1,29 +1,52 @@
+import scrapy
 import requests
-from bs4 import BeautifulSoup
 import json
+import time
+from bs4 import BeautifulSoup
 
-# Configure Tor proxy
-proxies = {
+# Tor Proxy Configuration
+TOR_PROXY = {
     "http": "socks5h://127.0.0.1:9050",
     "https": "socks5h://127.0.0.1:9050"
 }
 
-# Dark web target URL
-url = "http://somedarkwebforum.onion"
+# List of .onion sites to scrape
+target_domains = ["http://exampleonion.onion"]
 
-# Request page through Tor
-response = requests.get(url, proxies=proxies)
-soup = BeautifulSoup(response.text, "html.parser")
+class DarkWebSpider(scrapy.Spider):
+    name = "darkweb_scraper"
 
-# Extract usernames & posts
-data = []
-for post in soup.find_all("div", class_="post"):
-    username = post.find("span", class_="username").text
-    content = post.find("p").text
-    data.append({"username": username, "post": content})
+    def start_requests(self):
+        for url in target_domains:
+            yield scrapy.Request(url, callback=self.parse, meta={"proxy": TOR_PROXY["http"]})
 
-# Save extracted data
-with open("../data/extracted_data.json", "w") as json_file:
-    json.dump(data, json_file, indent=4)
+    def parse(self, response):
+        soup = BeautifulSoup(response.text, "html.parser")
 
-print("Scraping complete! Data saved to extracted_data.json")
+        # Extract Emails
+        emails = set(a.text for a in soup.find_all("a") if "@" in a.text)
+        
+        # Extract Bitcoin Wallets
+        btc_wallets = set(a.text for a in soup.find_all("a") if a.text.startswith("1") or a.text.startswith("3"))
+        
+        # Extract Links
+        links = set(a["href"] for a in soup.find_all("a", href=True))
+
+        # Save Data
+        data = {
+            "emails": list(emails),
+            "btc_wallets": list(btc_wallets),
+            "links": list(links),
+        }
+
+        with open("darkweb_results.json", "w") as f:
+            json.dump(data, f, indent=4)
+
+        self.log("\n✅ Dark web data saved in darkweb_results.json")
+
+# Run the spider
+from scrapy.crawler import CrawlerProcess
+
+process = CrawlerProcess()
+process.crawl(DarkWebSpider)
+process.start()
