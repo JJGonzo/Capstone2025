@@ -11,7 +11,13 @@ TOR_PROXY = {
 }
 
 # List of .onion sites to scrape
-target_domains = ["http://exampleonion.onion"]
+target_domains = [
+    "http://expyuzz4wqqyqhjn.onion",  # Tor Project
+    "http://duckduckgogg42xjoc72x3sjasowoarfbgcmvfimaftt6twagswzczad.onion",  # DuckDuckGo
+    "http://msydqstlz2kzerdg.onion",  # Ahmia Search Engine
+    "http://www.propub3r6espa33w.onion/",  # ProPublica
+    "http://zqktlwiuavvvqqt4ybvgvi7tyo4hjl5xz5h3px5c5akk3qq4h4tzufqd.onion"  # The Hidden Wiki
+]
 
 class DarkWebSpider(scrapy.Spider):
     name = "darkweb_scraper"
@@ -42,7 +48,7 @@ class DarkWebSpider(scrapy.Spider):
         with open("darkweb_results.json", "w") as f:
             json.dump(data, f, indent=4)
 
-        self.log("\n✅ Dark web data saved in darkweb_results.json")
+        self.log("\n Dark web data saved in darkweb_results.json")
 
 # Run the spider
 from scrapy.crawler import CrawlerProcess
