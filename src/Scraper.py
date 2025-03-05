@@ -19,18 +19,35 @@ class DarkWebSpider(scrapy.Spider):
             yield scrapy.Request(
                 url,
                 callback=self.parse,
-                meta={"proxy": TOR_PROXY}  # ✅ Correct proxy usage
+                meta={
+                    "proxy": TOR_PROXY,
+                    "handle_httpstatus_list": [301],  # ✅ Handle 301 redirects
+                    "dont_redirect": False  # ✅ Allow automatic redirects
+                }
             )
 
     def parse(self, response):
+        # ✅ Handle 301 Redirects manually if needed
+        if response.status == 301:
+            redirected_url = response.headers.get("Location", "").decode()
+            self.log(f"🔄 Redirected to {redirected_url}")
+
+            if redirected_url.startswith("http"):  # Ensures it's a valid redirect
+                yield scrapy.Request(
+                    redirected_url,
+                    callback=self.parse,
+                    meta={"proxy": TOR_PROXY, "dont_filter": True}  # ✅ Retry new URL
+                )
+            return
+
         soup = BeautifulSoup(response.text, "html.parser")
 
         # ✅ Extract Emails
         emails = set(a.text for a in soup.find_all("a") if "@" in a.text)
-        
+
         # ✅ Extract Bitcoin Wallets
         btc_wallets = set(a.text for a in soup.find_all("a") if a.text.startswith("1") or a.text.startswith("3"))
-        
+
         # ✅ Extract Links
         links = set(a["href"] for a in soup.find_all("a", href=True))
 
