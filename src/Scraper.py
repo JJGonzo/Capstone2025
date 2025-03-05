@@ -8,7 +8,10 @@ TOR_PROXY = "http://127.0.0.1:8118"  # Privoxy acts as a bridge for Tor
 
 # List of Safe .onion Sites for Testing
 target_domains = [
-    "https://duckduckgogg42xjoc72x3sjasowoarfbgcmvfimaftt6twagswzczad.onion"
+    "serhack5jaime7y6yeaead6gpxxignnivws4pqm3n5sume66g7l5id.onion",  # From SerHack blog
+    "hellho5o35syxlrpfu45p57n42lzvirnvszmziunv7bcejynaqxyd.onion",  # From Telegram OSINT & Group Hacking Methods
+    "hellho5o35syxlrpfu45p57n42lzvirnvszmziunv7bcejynaqxyd.onion",  # Repeated link
+    "h36vwgmlvhyxlj7tjinbagig5c4gsjuvfatm27hg7q3thxpxs2od6ad.onion"  # From Instagram OSINT Tool & Source Code
 ]
 
 class DarkWebSpider(scrapy.Spider):
