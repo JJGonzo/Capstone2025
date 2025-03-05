@@ -17,10 +17,12 @@ class DarkWebSpider(scrapy.Spider):
 
     def start_requests(self):
         for url in target_domains:
-            yield scrapy.Request(
-                f"http://{url}",  # Ensure the correct format for the .onion link
+            yield SplashRequest(
+                f"http://{url}",
                 callback=self.parse,
-                meta={"proxy": TOR_PROXY}  # ✅ Correct proxy usage
+                args={'wait': 2},  # Wait for JavaScript to render
+                endpoint="http://scrapinghub.com/splash",  # Remote Splash service
+                meta={"proxy": "http://127.0.0.1:8118"}  # Proxy through Tor
             )
 
     def parse(self, response):
