@@ -198,34 +198,33 @@ class Darkdump(object):
 
     def crawl(self, query, amount, use_proxy=False, scrape_sites=False, scrape_images=False):
         headers = {'User-Agent': random.choice(Headers.user_agents)}
-        proxy_config = {'http': 'socks5h://localhost:9050', 'https': 'socks5h://localhost:9050'} if use_proxy else {}
+        proxy_config = {'http': 'socks5h://localhost:9050', 'https://socks5h://localhost:9050'} if use_proxy else {}
 
-# Fetching the initial search page
-try:
-    page = requests.get(Configuration.__darkdump_api__ + query, headers=headers)
-    soup = BeautifulSoup(page.content, 'html.parser')
+        # Fetching the initial search page
+        try:
+            page = requests.get(Configuration.__darkdump_api__ + query, headers=headers)
+            soup = BeautifulSoup(page.content, 'html.parser')
 
-    # Extract .onion links from search results
-    results = soup.find_all('a')  # Find all <a> tags
+            # Extract .onion links from search results
+            results = soup.find_all('a')  # Find all <a> tags
 
-    onion_links = []
-    for link in results:
-        href = link.get('href')
-        if href and '.onion' in href:
-            onion_links.append(href)
+            onion_links = []
+            for link in results:
+                href = link.get('href')
+                if href and '.onion' in href:
+                    onion_links.append(href)
 
-    # Remove duplicates
-    onion_links = list(set(onion_links))
+            # Remove duplicates
+            onion_links = list(set(onion_links))
 
-    # Debugging: Print found .onion links
-    print(f"Found {len(onion_links)} .onion links: {onion_links}")
+            # Debugging: Print found .onion links
+            print(f"Found {len(onion_links)} .onion links: {onion_links}")
 
-except Exception as e:
-    print(f"{Colors.BOLD + Colors.R} Error in fetching OnionSearch: {e} {Colors.END}")
-    return
+        except Exception as e:
+            print(f"{Colors.BOLD + Colors.R} Error in fetching OnionSearch: {e} {Colors.END}")
+            return
 
-seen_urls = set()  # This set will store URLs to avoid duplicates
-
+        seen_urls = set()  # This set will store URLs to avoid duplicates
 
         if scrape_sites: 
             if Platform(True).check_tor_connection(proxy_config) == False: return
@@ -284,7 +283,6 @@ seen_urls = set()  # This set will store URLs to avoid duplicates
                     print(f"{Colors.BOLD}{idx + 1}. --- [+] Website: {Colors.END}{Colors.P}{title.strip()}{Colors.END}")
                     print(f"{Colors.BOLD}\t Information: {Colors.END}{Colors.G}{description.strip()}{Colors.END}")
                     print(f"{Colors.BOLD}| Onion Link: {Colors.END}{Colors.G}{site_url}{Colors.END}\n")
-
 
             except KeyboardInterrupt as ki:
                 print(f"{Colors.BOLD + Colors.R} Quitting... {Colors.END}")
