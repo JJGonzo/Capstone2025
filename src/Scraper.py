@@ -2,11 +2,12 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import json
+import time
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 class DarkScrape:
-    '''Scrapes data from an onion site. Data scraped consists of:
+    '''Scrapes data from an onion site using Privoxy. Data scraped consists of:
         * emails
         * links
         * images
@@ -16,7 +17,7 @@ class DarkScrape:
         if available.
     '''
     def __init__(self):
-        self.session = self.connect_tor()
+        self.session = self.connect_via_privoxy()
         self.ip = self.get_ip()
         if self.ip:
             print("Connected to: ", self.ip)
@@ -24,11 +25,11 @@ class DarkScrape:
         self.url = ""
         self.soup = BeautifulSoup("", "html.parser")
 
-    def connect_tor(self):
+    def connect_via_privoxy(self):
         session = requests.Session()
         session.proxies = {
-            'http': 'socks5h://127.0.0.1:9050',
-            'https': 'socks5h://127.0.0.1:9050'
+            'http': 'http://127.0.0.1:8118',
+            'https': 'http://127.0.0.1:8118'
         }
         retry_strategy = Retry(
             total=5,
