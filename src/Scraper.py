@@ -73,7 +73,7 @@ if __name__ == '__main__':
         result = scrape_site(url)
 
         if result:
-            print("✅ OSINT data found:")
+            print("OSINT data found:")
             if result['emails']: print(f"  Emails: {result['emails']}")
             if result['bitcoin_addresses']: print(f"  Bitcoin: {result['bitcoin_addresses']}")
             if result['monero_addresses']: print(f"  Monero: {result['monero_addresses']}")
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
             useful_results.append(result)
         else:
-            print("❌ No useful OSINT data found or site unreachable.")
+            print("No useful OSINT data found or site unreachable.")
 
     print("\n--- Summary ---")
     print(f"Total sites scraped: {len(onion_urls)}")
