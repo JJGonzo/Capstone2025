@@ -1,79 +1,55 @@
-import scrapy
+import subprocess
 import json
-from bs4 import BeautifulSoup
-from scrapy.crawler import CrawlerProcess
-import socks
-import socket
-from scrapy.downloadermiddlewares.httpproxy import HttpProxyMiddleware
+import os
 
-# Set up SOCKS5 Proxy for Scrapy using PySocks
-socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 9050)
-socket.socket = socks.socksocket
-
-# ✅ List of Safe .onion Sites for Testing (Updated with new links)
+# Target domains to scan - replace with your .onion domains
 target_domains = [
-    "http://blinkxxvyrdjgxao4lf6wgxqpbdd4xkawbe2acs7sqlfxnb5ei2xid.onion",  # Example .onion link
+    "dreadytofatroptsdj6io7l3xptbet6onoyno2yv7jicoxxnyazubrad.onion",  # Example .onion link
+    "nzdmnfcf22s5pd3wvyfy3jhwoubv6qunmdglspqhurqunvr52khattdad.onion"  # Another example
 ]
 
-class DarkWebSpider(scrapy.Spider):
-    name = "darkweb_scraper"
+# Configure the Tor Proxy (make sure Tor is running on port 9050)
+TOR_PROXY = "socks5h://127.0.0.1:9050"
 
-    # Set the headers to mimic a real browser request
-    custom_settings = {
-        'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'RETRY_ENABLED': True,
-        'RETRY_TIMES': 5,  # Retry up to 5 times
-        'RETRY_HTTP_CODES': [503],  # Retry on 503 errors
-        'DOWNLOAD_DELAY': 1,  # Add a delay to avoid being rate-limited
-        'DOWNLOADER_MIDDLEWARES': {
-            'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,  # Ensuring the proxy is set
-        },
-    }
+def run_theHarvester(domain):
+    print(f"Running theHarvester for: {domain}")
+    output_file = f"{domain.replace('.', '_')}.json"
+    
+    # Modify the command to ensure theHarvester uses the Tor proxy
+    command = f"theHarvester -b all -f {output_file} -s {domain} --proxy {TOR_PROXY}"
+    subprocess.run(command, shell=True)
 
-    def start_requests(self):
-        for url in target_domains:
-            yield scrapy.Request(
-                url,  # Ensure the correct format for the .onion link
-                callback=self.parse,
-                meta={"proxy": "socks5://127.0.0.1:9050"}  # Correct proxy usage
-            )
+# Run theHarvester with JSON output
+def parse_json_output(output_file):
+    if not os.path.exists(output_file):
+        print(f"Error: JSON file {output_file} not found.")
+        return {}
+    
+    try:
+        with open(output_file, "r") as f:
+            return json.load(f)  # Return parsed JSON data
+    except json.JSONDecodeError as e:
+        print(f"Error parsing {output_file}: {e}")
+        return {}
 
-    def parse(self, response):
-        # Check for errors (e.g., 503)
-        if response.status == 503:
-            self.logger.warning(f"503 error on {response.url}. Retrying...")
-            yield scrapy.Request(
-                response.url, 
-                callback=self.parse, 
-                meta={"proxy": "socks5://127.0.0.1:9050"}, 
-                dont_filter=True  # Don't filter this request
-            )
-            return
-
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        # ✅ Extract Emails
-        emails = set(a.text for a in soup.find_all("a") if "@" in a.text)
-
-        # ✅ Extract Bitcoin Wallets
-        btc_wallets = set(a.text for a in soup.find_all("a") if a.text.startswith("1") or a.text.startswith("3"))
-
-        # ✅ Extract Links
-        links = set(a["href"] for a in soup.find_all("a", href=True))
-
-        # ✅ Save Data
-        data = {
-            "emails": list(emails),
-            "btc_wallets": list(btc_wallets),
-            "links": list(links),
+if __name__ == "__main__":
+    all_results = {}
+    
+    for domain in target_domains:
+        run_theHarvester(domain)  # Run theHarvester for each domain
+        output_file = f"{domain.replace('.', '_')}.json"
+        data = parse_json_output(output_file)
+        
+        # Ensure the data is extracted correctly
+        all_results[domain] = {
+            "emails": list(set(data.get("emails", []))),   # Remove duplicate emails
+            "usernames": list(set(data.get("users", []))),  # Remove duplicate usernames
+            "hosts": list(set(data.get("hosts", []))),      # Remove duplicate hosts
+            "ips": list(set(data.get("ips", [])))           # Remove duplicate IPs
         }
 
-        with open("darkweb_results.json", "w") as f:
-            json.dump(data, f, indent=4)
+    # Save results to JSON
+    with open("final_results.json", "w") as f:
+        json.dump(all_results, f, indent=4)
 
-        self.log("\n✅ Dark web data saved in darkweb_results.json")
-
-# ✅ Run the Scrapy Spider
-process = CrawlerProcess()
-process.crawl(DarkWebSpider)
-process.start()
+    print("\nAll data saved in final_results.json")
