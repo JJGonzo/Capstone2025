@@ -1,77 +1,32 @@
-import re
 import requests
-import time
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.service import Service
-from webdriver_manager.firefox import GeckoDriverManager
+import re
 
-def tor_driver():
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
+proxies = {
+    'http': 'socks5h://127.0.0.1:9050',
+    'https': 'socks5h://127.0.0.1:9050'
+}
 
-    # Explicitly configure proxy settings for Tor
-    options.set_preference('network.proxy.type', 1)
-    options.set_preference('network.proxy.socks', '127.0.0.1')
-    options.set_preference('network.proxy.socks_port', 9050)
-    options.set_preference("network.proxy.socks_remote_dns", True)
+headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'}
 
-    # Explicitly specify a clean temporary profile
-    options.set_preference("browser.privatebrowsing.autostart", True)
-    options.set_preference("browser.startup.homepage_override.mstone", "ignore")
-    options.set_preference("startup.homepage_welcome_url", "about:blank")
-    options.set_preference("startup.homepage_welcome_url", "about:blank")
-    options.set_preference("startup.homepage_welcome_url.additional", "about:blank")
-
-    # Force Selenium to use its managed temporary profile
-    options.set_preference('profile', '')
-
-    service = Service(GeckoDriverManager().install())
-    driver = webdriver.Firefox(service=service, options=options)
-    return driver
-
+# Simple function to scrape OnionEngine.com for onion URLs
 def fetch_onion_links(query, pages=1):
-    driver = tor_driver()
     onion_links = set()
-    driver.set_page_load_timeout(30)
 
-    onionsearch_url = 'https://onionengine.com/'
+    for page in range(1, pages+1):
+        url = f'https://onionengine.com/search?q={query}&page={page+1}'
+        res = requests.get(url, headers=headers)
+        soup = BeautifulSoup(res.text, 'html.parser')
 
-    try:
-        driver.get(onionsearch_url)
-        driver.implicitly_wait(10)
-
-        search_box = driver.find_element(By.NAME, 'search')
-        search_box.send_keys(query + Keys.RETURN)
-        time.sleep(3)
-
-        for page in range(pages):
-            soup = BeautifulSoup(driver.page_source, 'html.parser')
-
-            for link in soup.find_all('a', href=True):
-                href = link['href']
-                if re.match(r'http[s]?://[a-z2-7]{56}\.onion', href):
-                    onion_links.add(href)
-
-            try:
-                next_button = driver.find_element(By.LINK_TEXT, 'Next')
-                next_button.click()
-                time.sleep(3)
-            except Exception as e:
-                print(f"No more pages or pagination issue: {e}")
-                break
-
-    except Exception as main_e:
-        print(f"Error fetching onion links: {main_e}")
-
-    finally:
-        driver.quit()
+        links = soup.find_all('a', href=True)
+        for link in links:
+            href = link['href']
+            if re.match(r'http[s]?://[a-z2-7]{56}\.onion', href):
+                onion_links.add(href)
 
     return list(onion_links)
 
+# Scrape individual onion site via Tor proxy
 def scrape_site(url):
     proxies = {
         'http': 'socks5h://127.0.0.1:9050',
@@ -79,7 +34,7 @@ def scrape_site(url):
     }
 
     try:
-        res = requests.get(url, proxies=proxies, timeout=20)
+        res = requests.get(url, proxies=proxies, timeout=20, headers=headers)
         soup = BeautifulSoup(res.text, 'html.parser')
         text = soup.get_text()
 
