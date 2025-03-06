@@ -38,7 +38,7 @@ import json
 
 import socket
 
-from src.agents import Headers
+from headers.agents import Headers
 
 import nltk
 nltk.download('stopwords')
