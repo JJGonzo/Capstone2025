@@ -49,7 +49,6 @@ def scrape_site(url, use_proxy, scrape_images):
 
 def main():
     parser = argparse.ArgumentParser(description="Scraper for searching and scraping .onion sites.")
-
     parser.add_argument("-q", "--query", help="The keyword or string you want to search on the deep web", type=str, required=True)
     parser.add_argument("-a", "--amount", help="The amount of results you want to retrieve", type=int, default=10)
     parser.add_argument("-p", "--proxy", help="Use Tor proxy for scraping", action="store_true")
