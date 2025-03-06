@@ -220,6 +220,9 @@ class Darkdump(object):
             # Debugging: Print found .onion links
             print(f"Found {len(onion_links)} .onion links: {onion_links}")
 
+            # Assign extracted onion links to second_results (Fix for NameError)
+            second_results = onion_links 
+
         except Exception as e:
             print(f"{Colors.BOLD + Colors.R} Error in fetching OnionSearch: {e} {Colors.END}")
             return
