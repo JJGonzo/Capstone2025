@@ -40,7 +40,7 @@ def extract_onion_links(results):
 def scrape_site(url, use_proxy, scrape_images):
     headers = {'User-Agent': 'Mozilla/5.0'}
     proxy_config = {'http': Configuration.__socks5init__, 'https': Configuration.__socks5init__} if use_proxy else {}
-    
+
     if not url.startswith('http://') and not url.startswith('https://'):
         url = 'http://' + url  # Ensure the URL has the http protocol
 
@@ -63,19 +63,19 @@ def main():
     parser.add_argument("-s", "--scrape", help="Scrape the actual site for content and look for keywords", action="store_true")
 
     args = parser.parse_args()
-    
+
     print(f"Searching Ahmia.fi for: {args.query}")
     results = fetch_search_results(args.query, args.proxy)
     onion_links = extract_onion_links(results)
-    
+
     if not onion_links:
         print("No .onion links found.")
         return
-    
+
     print("Found .onion links:")
     for link in onion_links:
         print(link)
-    
+
     if args.scrape:
         for link in onion_links:
             print(f"Scraping {link}...")
