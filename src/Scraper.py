@@ -70,14 +70,20 @@ def main():
     for link in onion_links:
         print(link)
     
-    if args.scrape:
-        for link in onion_links:
-            print(f"Scraping {link}...")
-            text, images = scrape_site(link, args.proxy, args.images)
-            if text:
-                print(f"Extracted text: {text[:500]}...")  # Show only the first 500 characters
-            if args.images and images:
-                print(f"Found images: {images}")
+if args.scrape:
+    for link in onion_links:
+        print(f"Scraping {link}...")
+
+        # Call the scraping function with proxy and image scraping options
+        text, images = scrape_site(link, use_proxy=args.proxy, scrape_images=args.images)
+
+        if text:
+            print(f"Extracted text: {text[:500]}...")  # Display only the first 500 characters
+
+        if args.images and images:
+            print(f"Found images: {len(images)}")
+            for img in images:
+                print(f" - {img}")
 
 if __name__ == "__main__":
     main()
