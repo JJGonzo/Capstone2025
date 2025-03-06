@@ -41,8 +41,12 @@ def scrape_site(url, use_proxy, scrape_images):
     headers = {'User-Agent': 'Mozilla/5.0'}
     proxy_config = {'http': Configuration.__socks5init__, 'https': Configuration.__socks5init__} if use_proxy else {}
 
+    # Ensure the URL starts with http or https
     if not url.startswith('http://') and not url.startswith('https://'):
-        url = 'http://' + url  # Ensure the URL has the http protocol
+        if url.startswith('www.'):
+            url = 'http://' + url
+        else:
+            url = 'http://' + url  # Default to http if no protocol is specified
 
     try:
         response = requests.get(url, headers=headers, proxies=proxy_config)
