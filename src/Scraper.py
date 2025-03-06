@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -16,8 +17,11 @@ def tor_driver():
     options.set_preference('network.proxy.socks_port', 9050)
     options.set_preference("network.proxy.socks_remote_dns", True)
 
+    profile = FirefoxProfile()
+    profile.set_preference("browser.privatebrowsing.autostart", True)
+
     service = Service(GeckoDriverManager().install())
-    driver = webdriver.Firefox(service=service, options=options)
+    driver = webdriver.Firefox(service=service, options=options, firefox_profile=profile)
     return driver
 
 def fetch_onion_links(query, pages=1):
