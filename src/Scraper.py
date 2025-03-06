@@ -200,92 +200,96 @@ class Darkdump(object):
         headers = {'User-Agent': random.choice(Headers.user_agents)}
         proxy_config = {'http': 'socks5h://localhost:9050', 'https://socks5h://localhost:9050'} if use_proxy else {}
 
-        # Fetching the initial search page
-        try:
-            page = requests.get(Configuration.__darkdump_api__ + query, headers=headers)
-            soup = BeautifulSoup(page.content, 'html.parser')
+# Fetching the initial search page
+try:
+    page = requests.get(Configuration.__darkdump_api__ + query, headers=headers)
+    soup = BeautifulSoup(page.content, 'html.parser')
 
-            # Extract .onion links from search results
-            results = soup.find_all('a')  # Find all <a> tags
+    # Extract .onion links from search results
+    results = soup.find_all('a')  # Find all <a> tags
 
-            onion_links = []
-            for link in results:
-                href = link.get('href')
-                if href and '.onion' in href:
-                    onion_links.append(href)
+    onion_links = []
+    for link in results:
+        href = link.get('href')
+        if href and '.onion' in href:
+            onion_links.append(href)
 
-            # Remove duplicates
-            onion_links = list(set(onion_links))
+    # Remove duplicates
+    onion_links = list(set(onion_links))
 
-            # Debugging: Print found .onion links
-            print(f"Found {len(onion_links)} .onion links: {onion_links}")
+    # Debugging: Print found .onion links
+    print(f"Found {len(onion_links)} .onion links: {onion_links}")
 
-        except Exception as e:
-            print(f"{Colors.BOLD + Colors.R} Error in fetching OnionSearch: {e} {Colors.END}")
-            return
+except Exception as e:
+    print(f"{Colors.BOLD + Colors.R} Error in fetching OnionSearch: {e} {Colors.END}")
+    return
 
-        seen_urls = set()  # This set will store URLs to avoid duplicates
+seen_urls = set()  # This set will store URLs to avoid duplicates
 
-        if scrape_sites: 
-            if Platform(True).check_tor_connection(proxy_config) == False: return
+if scrape_sites:
+    if Platform(True).check_tor_connection(proxy_config) == False:
+        return
 
-        for idx, result in enumerate(second_results[:min(amount + 1, len(second_results))], start=1):
-            site_url = result.find('cite').text
-            if "http://" not in site_url and "https://" not in site_url:
-                site_url = "http://" + site_url
+for idx, result in enumerate(second_results[:min(amount + 1, len(second_results))], start=1):
+    site_url = result.find('cite').text
+    if "http://" not in site_url and "https://" not in site_url:
+        site_url = "http://" + site_url
 
-            if site_url in seen_urls:
-                continue
-            seen_urls.add(site_url)
-            
-            title = result.find('a').text if result.find('a') else "No title available"
-            description = result.find('p').text if result.find('p') else "No description available"
+    if site_url in seen_urls:
+        continue
+    seen_urls.add(site_url)
+
+    title = result.find('a').text if result.find('a') else "No title available"
+    description = result.find('p').text if result.find('p') else "No description available"
+    
+    try:
+        if scrape_sites:
             try:
-                if scrape_sites:
-                    try:
-                        site_response = requests.get(site_url, headers=headers, proxies=proxy_config)
-                        site_soup = BeautifulSoup(site_response.content, 'html.parser')
+                site_response = requests.get(site_url, headers=headers, proxies=proxy_config)
+                site_soup = BeautifulSoup(site_response.content, 'html.parser')
 
-                        text_analysis = self.analyze_text(site_soup.get_text())
-                        metadata = self.extract_metadata(site_soup)
-                        links = self.extract_links(site_soup)
-                        emails = self.extract_emails(site_soup)
-                        documents = self.extract_document_links(site_soup)
+                text_analysis = self.analyze_text(site_soup.get_text())
+                metadata = self.extract_metadata(site_soup)
+                links = self.extract_links(site_soup)
+                emails = self.extract_emails(site_soup)
+                documents = self.extract_document_links(site_soup)
 
-                        if scrape_images:
-                            images = site_soup.find_all('img')
-                            image_urls = [img['src'] for img in images if img.get('src')]
-                            image_urls = [url if url.startswith('http') else site_url + url for url in image_urls]
+                if scrape_images:
+                    images = site_soup.find_all('img')
+                    image_urls = [img['src'] for img in images if img.get('src')]
+                    image_urls = [url if url.startswith('http') else site_url + url for url in image_urls]
 
-                            html_path = self.generate_html(image_urls, site_url)
-                            images_str = f"{Colors.BOLD}| Images Gallery: {Colors.END}{Colors.G}{os.path.abspath(html_path)}{Colors.END}\n"
+                    html_path = self.generate_html(image_urls, site_url)
+                    images_str = f"{Colors.BOLD}| Images Gallery: {Colors.END}{Colors.G}{os.path.abspath(html_path)}{Colors.END}\n"
 
-                        print('-' * 50)
-                        print(f"{Colors.BOLD}{idx + 1}.\n --- [+] Website: {Colors.END}{Colors.P}{title.strip()}{Colors.END}")
-                        print(f"{Colors.BOLD}| Information: {Colors.END}{Colors.G}{description.strip()}{Colors.END}")
-                        print(f"{Colors.BOLD}| Onion Link: {Colors.END}{Colors.G}{site_url}{Colors.END}")
-                        print(f"{Colors.BOLD}| Keywords: {Colors.END}{Colors.G}{', '.join(self.extract_keywords(site_soup.get_text()))}{Colors.END}")
-                        print(f"{Colors.BOLD}\t- Sentiment: Polarity = {text_analysis['sentiment']['polarity']:.2f}, Subjectivity = {text_analysis['sentiment']['subjectivity']:.2f}")
-                        print(f"{Colors.BOLD}| Metadata: {Colors.END}{Colors.G}{json.dumps(metadata)}{Colors.END}")
-                        print(f"{Colors.BOLD}| Links Found: {Colors.END}{Colors.G}{len(links)}{Colors.END}")
-                        print(f"{Colors.BOLD}| Emails Found: {Colors.END}{Colors.G}{', '.join(emails) if emails else 'No emails found.'}{Colors.END}")
-                        print(f"{Colors.BOLD}| Documents Found: {Colors.END}{Colors.G}{', '.join(documents) if documents else 'No document links found.'}{Colors.END}")
+                print('-' * 50)
+                print(f"{Colors.BOLD}{idx + 1}.\n --- [+] Website: {Colors.END}{Colors.P}{title.strip()}{Colors.END}")
+                print(f"{Colors.BOLD}| Information: {Colors.END}{Colors.G}{description.strip()}{Colors.END}")
+                print(f"{Colors.BOLD}| Onion Link: {Colors.END}{Colors.G}{site_url}{Colors.END}")
+                print(f"{Colors.BOLD}| Keywords: {Colors.END}{Colors.G}{', '.join(self.extract_keywords(site_soup.get_text()))}{Colors.END}")
+                print(f"{Colors.BOLD}\t- Sentiment: Polarity = {text_analysis['sentiment']['polarity']:.2f}, Subjectivity = {text_analysis['sentiment']['subjectivity']:.2f}")
+                print(f"{Colors.BOLD}| Metadata: {Colors.END}{Colors.G}{json.dumps(metadata)}{Colors.END}")
+                print(f"{Colors.BOLD}| Links Found: {Colors.END}{Colors.G}{len(links)}{Colors.END}")
+                print(f"{Colors.BOLD}| Emails Found: {Colors.END}{Colors.G}{', '.join(emails) if emails else 'No emails found.'}{Colors.END}")
+                print(f"{Colors.BOLD}| Documents Found: {Colors.END}{Colors.G}{', '.join(documents) if documents else 'No document links found.'}{Colors.END}")
 
-                        if scrape_images:
-                            if image_urls:
-                                print(images_str)
-                            else: print(f"{Colors.BOLD + Colors.GR} No images found. Skipping parse. {Colors.END}")
+                if scrape_images:
+                    if image_urls:
+                        print(images_str)
+                    else:
+                        print(f"{Colors.BOLD + Colors.GR} No images found. Skipping parse. {Colors.END}")
 
-                    except Exception as e: 
-                        print(f"{Colors.BOLD + Colors.O} Dead onion, skipping...: {site_url} {Colors.END}")
+            except Exception as e:
+                print(f"{Colors.BOLD + Colors.O} Dead onion, skipping...: {site_url} {Colors.END}")
 
-                else: # No scrape
-                    print(f"{Colors.BOLD}{idx + 1}. --- [+] Website: {Colors.END}{Colors.P}{title.strip()}{Colors.END}")
-                    print(f"{Colors.BOLD}\t Information: {Colors.END}{Colors.G}{description.strip()}{Colors.END}")
-                    print(f"{Colors.BOLD}| Onion Link: {Colors.END}{Colors.G}{site_url}{Colors.END}\n")
+        else:  # No scrape
+            print(f"{Colors.BOLD}{idx + 1}. --- [+] Website: {Colors.END}{Colors.P}{title.strip()}{Colors.END}")
+            print(f"{Colors.BOLD}\t Information: {Colors.END}{Colors.G}{description.strip()}{Colors.END}")
+            print(f"{Colors.BOLD}| Onion Link: {Colors.END}{Colors.G}{site_url}{Colors.END}\n")
 
-            except KeyboardInterrupt as ki:
-                print(f"{Colors.BOLD + Colors.R} Quitting... {Colors.END}")
+    except KeyboardInterrupt:
+        print(f"{Colors.BOLD + Colors.R} Quitting... {Colors.END}")
+
 
 
 def darkdump_main():
