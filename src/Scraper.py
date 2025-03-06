@@ -1,21 +1,20 @@
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from webdriver_manager.firefox import GeckoDriverManager
-from bs4 import BeautifulSoup
 import re
 import requests
 import time
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
+from webdriver_manager.firefox import GeckoDriverManager
 
 def tor_driver():
     options = Options()
     options.headless = True
     options.set_preference('network.proxy.type', 1)
     options.set_preference('network.proxy.socks', '127.0.0.1')
-    options.set_preference('network.proxy.socks_port', 9050)
-    options.set_preference('network.proxy.socks_remote_dns', True)
+    options.set_preference('network.proxy.socks_port', 9050)  # CONFIRMED CORRECT
+    options.set_preference("network.proxy.socks_remote_dns", True)
+    options.set_preference("browser.privatebrowsing.autostart", True)
 
     service = Service(GeckoDriverManager().install())
     driver = webdriver.Firefox(service=service, options=options)
