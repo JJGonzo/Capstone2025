@@ -29,9 +29,11 @@ def fetch_search_results(query, use_proxy):
         print(f"Error fetching Ahmia.fi results: {e}")
         return []
 
-def extract_onion_links(results):
+def extract_onion_links(results, limit):
     onion_links = []
     for link in results:
+        if len(onion_links) >= limit:
+            break
         href = link.get('href')
         if href and '.onion' in href:
             onion_links.append(href)
@@ -67,7 +69,7 @@ def main():
 
     print(f"Searching Ahmia.fi for: {args.query}")
     results = fetch_search_results(args.query, args.proxy)
-    onion_links = extract_onion_links(results)
+    onion_links = extract_onion_links(results, args.amount)
 
     if not onion_links:
         print("No .onion links found.")
