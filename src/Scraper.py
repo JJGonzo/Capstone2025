@@ -198,7 +198,7 @@ class Darkdump(object):
 
     def crawl(self, query, amount, use_proxy=False, scrape_sites=False, scrape_images=False):
         headers = {'User-Agent': random.choice(Headers.user_agents)}
-        proxy_config = {'http': 'socks5h://localhost:9050', 'https://socks5h://localhost:9050'} if use_proxy else {}
+        proxy_config = {'http': 'socks5h://localhost:9050', 'https': 'socks5h://localhost:9050'} if use_proxy else {}
 
 # Fetching the initial search page
 try:
