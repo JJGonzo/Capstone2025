@@ -1,9 +1,10 @@
-import requests
-from bs4 import BeautifulSoup
-import scrapy
-from scrapy.crawler import CrawlerProcess
+import subprocess
 import json
 import os
+import random
+from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
+import scrapy
+from scrapy.crawler import CrawlerProcess
 
 # Configure the Tor Proxy (make sure Tor is running on port 9050)
 TOR_PROXY = "socks5h://127.0.0.1:9050"
@@ -21,10 +22,13 @@ class OnionSpider(scrapy.Spider):
     # Setting start URLs for the spider
     start_urls = [f"http://{domain}" for domain in target_domains]
     
+    # Scrapy settings
     custom_settings = {
         'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'DOWNLOADER_MIDDLEWARES': {
             'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,
+            'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,  # Disable default user agent middleware
+            'myproject.middlewares.RandomUserAgentMiddleware': 500,  # Enable our custom middleware
         },
         'HTTP_PROXY': TOR_PROXY,  # Setting the Tor proxy for the spider
     }
@@ -58,46 +62,31 @@ class OnionSpider(scrapy.Spider):
         
         self.log(f"Data for {response.url} saved in {output_file}")
 
+
+# Custom middleware for rotating user agents
+class RandomUserAgentMiddleware(UserAgentMiddleware):
+    def __init__(self, user_agent=''):
+        # List of user agents for rotation
+        self.user_agent_list = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+            # Add more user agents here
+        ]
+        self.user_agent = random.choice(self.user_agent_list)
+
+    def process_request(self, request, spider):
+        request.headers['User-Agent'] = self.user_agent
+
+
 # Run the Scrapy spider
 def run_spider():
     process = CrawlerProcess()
     process.crawl(OnionSpider)
     process.start()
 
-# BeautifulSoup & requests example for manual scraping:
-def scrape_with_requests():
-    for domain in target_domains:
-        url = f"http://{domain}"
-        
-        try:
-            # Request to the .onion URL through the Tor proxy
-            response = requests.get(url, proxies={"http": TOR_PROXY, "https": TOR_PROXY})
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.text, 'html.parser')
-                emails = set(a.text for a in soup.find_all('a') if "@" in a.text)
-                btc_wallets = set(a.text for a in soup.find_all('a') if a.text.startswith('1') or a.text.startswith('3'))
-                
-                data = {
-                    "emails": list(emails),
-                    "btc_wallets": list(btc_wallets),
-                    "links": [a['href'] for a in soup.find_all('a', href=True)]
-                }
-                
-                # Saving the data to a JSON file
-                output_file = f"{domain.replace('.', '_')}.json"
-                with open(output_file, "w") as f:
-                    json.dump(data, f, indent=4)
-                print(f"Data for {domain} saved in {output_file}")
-                
-            else:
-                print(f"Failed to retrieve {url}, status code: {response.status_code}")
-        
-        except requests.exceptions.RequestException as e:
-            print(f"Error fetching {url}: {e}")
 
+# Run the spider
 if __name__ == "__main__":
     # Run the Scrapy spider to scrape .onion sites
     run_spider()
-    
-    # You can also run the manual scraping using requests and BeautifulSoup:
-    # scrape_with_requests()
