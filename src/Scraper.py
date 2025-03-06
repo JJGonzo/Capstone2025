@@ -200,17 +200,32 @@ class Darkdump(object):
         headers = {'User-Agent': random.choice(Headers.user_agents)}
         proxy_config = {'http': 'socks5h://localhost:9050', 'https': 'socks5h://localhost:9050'} if use_proxy else {}
 
-        # Fetching the initial search page
-        try:
-            page = requests.get(Configuration.__darkdump_api__ + query, headers=headers)
-            soup = BeautifulSoup(page.content, 'html.parser')
-            results = soup.find(id='ahmiaResultsPage')  # Adjust based on actual result container ID
-            second_results = results.find_all('li', class_='result')  # Adjust based on actual results tag and class
-        except Exception as e:
-            print(f"{Colors.BOLD + Colors.R} Error in fetching Ahmia.fi: {e} {Colors.END}")
-            return
+# Fetching the initial search page
+try:
+    page = requests.get(Configuration.__darkdump_api__ + query, headers=headers)
+    soup = BeautifulSoup(page.content, 'html.parser')
 
-        seen_urls = set()  # This set will store URLs to avoid duplicates
+    # Extract .onion links from search results
+    results = soup.find_all('a')  # Find all <a> tags
+
+    onion_links = []
+    for link in results:
+        href = link.get('href')
+        if href and '.onion' in href:
+            onion_links.append(href)
+
+    # Remove duplicates
+    onion_links = list(set(onion_links))
+
+    # Debugging: Print found .onion links
+    print(f"Found {len(onion_links)} .onion links: {onion_links}")
+
+except Exception as e:
+    print(f"{Colors.BOLD + Colors.R} Error in fetching OnionSearch: {e} {Colors.END}")
+    return
+
+seen_urls = set()  # This set will store URLs to avoid duplicates
+
 
         if scrape_sites: 
             if Platform(True).check_tor_connection(proxy_config) == False: return
