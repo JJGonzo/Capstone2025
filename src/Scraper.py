@@ -16,8 +16,10 @@ def run_theHarvester(domain):
     output_file = f"{domain.replace('.', '_')}.json"
     
     # Modify the command to ensure theHarvester uses the Tor proxy
-    command = f"torsocks theHarvester -b all -f {output_file} -s {domain}"
+    # Using 'torsocks' to make sure it connects via Tor
+    command = f"torsocks theHarvester -d {domain} -b all -f {output_file}"
     
+    print(f"Running command: {command}")
     result = subprocess.run(command, shell=True)
     if result.returncode != 0:
         print(f"Error running theHarvester for {domain}")
@@ -47,12 +49,13 @@ if __name__ == "__main__":
         data = parse_json_output(output_file)
         
         # Ensure the data is extracted correctly
-        all_results[domain] = {
-            "emails": list(set(data.get("emails", []))),   # Remove duplicate emails
-            "usernames": list(set(data.get("users", []))),  # Remove duplicate usernames
-            "hosts": list(set(data.get("hosts", []))),      # Remove duplicate hosts
-            "ips": list(set(data.get("ips", [])))           # Remove duplicate IPs
-        }
+        if data:
+            all_results[domain] = {
+                "emails": list(set(data.get("emails", []))),   # Remove duplicate emails
+                "usernames": list(set(data.get("users", []))),  # Remove duplicate usernames
+                "hosts": list(set(data.get("hosts", []))),      # Remove duplicate hosts
+                "ips": list(set(data.get("ips", [])))           # Remove duplicate IPs
+            }
 
     # Save results to JSON
     with open("final_results.json", "w") as f:
