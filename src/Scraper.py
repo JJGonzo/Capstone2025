@@ -51,9 +51,8 @@ def is_onion_site_valid(url):
 
 # Example usage:
 # Scraping .onion links from the provided websites
-find_onion_links("http://dreadytofatroptsdj6io7l3xptbet6onoyno2yv7jicoxxnyazubrad.onion")
-find_onion_links("http://nzdmnfcf22s5pd3wvyfy3jhwoubv6qunmdglspqhurqunvr52khattdad.onion")
+find_onion_links("http://blinkxxvyrdjgxao4lf6wgxqpbdd4xkawbe2acs7sqlfxnb5ei2xid.onion")
 
 # Checking if the provided onion links are valid
-is_onion_site_valid("http://dreadytofatroptsdj6io7l3xptbet6onoyno2yv7jicoxxnyazubrad.onion")
-is_onion_site_valid("http://nzdmnfcf22s5pd3wvyfy3jhwoubv6qunmdglspqhurqunvr52khattdad.onion")
+is_onion_site_valid("http://blinkxxvyrdjgxao4lf6wgxqpbdd4xkawbe2acs7sqlfxnb5ei2xid.onion")
+
