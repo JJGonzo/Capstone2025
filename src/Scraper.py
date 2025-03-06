@@ -16,7 +16,7 @@ def run_theHarvester(domain):
     output_file = f"{domain.replace('.', '_')}.json"
     
     # Modify the command to ensure theHarvester uses the Tor proxy
-    command = f"theHarvester -b all -f {output_file} -d {domain} --proxy {TOR_PROXY}"
+    command = f"torsocks theHarvester -b all -f {output_file} -s {domain}"
     
     result = subprocess.run(command, shell=True)
     if result.returncode != 0:
