@@ -43,7 +43,7 @@ def scrape_site(url, use_proxy, scrape_images):
 
     # Ensure the URL starts with http or https
     if not url.startswith('http://') and not url.startswith('https://'):
-        url = 'http://' + url.lstrip('/')  # Ensure no extra slashes
+        url = 'http://' + url.lstrip('/')
 
     try:
         response = requests.get(url, headers=headers, proxies=proxy_config)
