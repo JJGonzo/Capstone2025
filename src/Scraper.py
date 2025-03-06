@@ -13,8 +13,8 @@ headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KH
 def fetch_onion_links(query, pages=1):
     onion_links = set()
 
-    for page in range(1, pages+1):
-        url = f'https://onionengine.com/search?q={query}&page={page+1}'
+    for page in range(1, pages + 1):
+        url = f'https://onionengine.com/search.php?search={query}&submit=Search&page={page}'
         res = requests.get(url, headers=headers)
         soup = BeautifulSoup(res.text, 'html.parser')
 
