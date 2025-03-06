@@ -22,15 +22,16 @@ class OnionSpider(scrapy.Spider):
     # Setting start URLs for the spider
     start_urls = [f"http://{domain}" for domain in target_domains]
     
-    custom_settings = {
-        'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'DOWNLOADER_MIDDLEWARES': {
-            'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,
-            'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,  # Disable default user agent middleware
-            'myproject.middlewares.RandomUserAgentMiddleware': 500,  # Enable our custom middleware
-        },
-        'HTTP_PROXY': TOR_PROXY,  # Setting the Tor proxy for the spider
-    }
+# Updated Scrapy settings section
+custom_settings = {
+    'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'DOWNLOADER_MIDDLEWARES': {
+        'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,
+        'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,  # Disable default user agent middleware
+        'scrapy.downloadermiddlewares.retry.RetryMiddleware': None, # You can add a retry middleware if necessary
+    },
+    'HTTP_PROXY': TOR_PROXY,  # Set your Tor proxy here
+}
 
     def parse(self, response):
         # Check for status code
