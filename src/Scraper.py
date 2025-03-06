@@ -87,7 +87,7 @@ def scrape_site(url):
 
 if __name__ == '__main__':
     query = input("Enter your search query: ")
-    onion_urls = fetch_onion_links(query, pages=2)
+    onion_urls = fetch_onion_links(query, pages=1)
 
     print(f'Found {len(onion_urls)} onion links.')
     
