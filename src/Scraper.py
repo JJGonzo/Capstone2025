@@ -2,6 +2,7 @@ import scrapy
 import json
 from bs4 import BeautifulSoup
 from scrapy.crawler import CrawlerProcess
+from scrapy_splash import SplashRequest  # Import SplashRequest
 
 # ✅ Corrected Proxy Configuration (Using Privoxy instead of socks5h)
 TOR_PROXY = "http://127.0.0.1:8118"  # Privoxy acts as a bridge for Tor
@@ -17,12 +18,12 @@ class DarkWebSpider(scrapy.Spider):
 
     def start_requests(self):
         for url in target_domains:
+            # Use SplashRequest for rendering JavaScript content
             yield SplashRequest(
                 f"http://{url}",
                 callback=self.parse,
-                args={'wait': 2},  # Wait for JavaScript to render
-                endpoint="http://scrapinghub.com/splash",  # Remote Splash service
-                meta={"proxy": "http://127.0.0.1:8118"}  # Proxy through Tor
+                meta={"proxy": TOR_PROXY},
+                args={'wait': 2}  # Wait for 2 seconds for JavaScript to load
             )
 
     def parse(self, response):
