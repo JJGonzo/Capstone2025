@@ -20,10 +20,9 @@ custom_settings = {
     'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
     'DOWNLOADER_MIDDLEWARES': {
         'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,
-        'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-        'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
     },
-    'HTTP_PROXY': TOR_PROXY,
+    'HTTPPROXY_ENABLED': True,
+    'HTTPPROXY_PROXY': "socks5h://127.0.0.1:9050"
 }
 
 class OnionSpider(scrapy.Spider):
