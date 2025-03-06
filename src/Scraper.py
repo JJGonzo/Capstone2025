@@ -1,16 +1,15 @@
 import json
 import requests
 from bs4 import BeautifulSoup
-import random
 
-# Configure the Tor Proxy (make sure Tor is running on port 9050)
+# Configure the Tor Proxy
 TOR_PROXY = "socks5h://127.0.0.1:9050"
 proxies = {
     'http': TOR_PROXY,
     'https': TOR_PROXY,
 }
 
-# Target domains to scan - replace with your .onion domains
+# Target domains to scan
 target_domains = [
     "lgh3eosuqrrtwx3s4nurujcqrm53ba5vqsbim5k5ntdp033qkl7buyd.onion"
 ]
@@ -18,7 +17,9 @@ target_domains = [
 # Function to scrape data from .onion sites
 def scrape_onion_site(url):
     try:
+        print(f"Scraping: {url}")
         response = requests.get(f"http://{url}", proxies=proxies, timeout=30)
+
         if response.status_code != 200:
             print(f"Error fetching {url}: {response.status_code}")
             return
@@ -40,6 +41,7 @@ def scrape_onion_site(url):
             json.dump(data, f, indent=4)
         
         print(f"Data for {url} saved in {output_file}")
+    
     except requests.exceptions.RequestException as e:
         print(f"Error scraping {url}: {e}")
 
