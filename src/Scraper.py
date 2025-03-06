@@ -12,7 +12,9 @@ TOR_PROXY = "socks5h://127.0.0.1:9050"
 # Target domains to scan - replace with your .onion domains
 target_domains = [
     "dreadytofatroptsdj6io7l3xptbet6onoyno2yv7jicoxxnyazubrad.onion",  # Example .onion link
-    "nzdmnfcf22s5pd3wvyfy3jhwoubv6qunmdglspqhurqunvr52khattdad.onion"  # Another example
+    "uicrmrli3ir66c4fx4l5gv5hdb6jrzy72bitrk25w5dhv5o6sxmajxqd.onion",  # Another example
+    "lgh3eosuqrrtwx3s4nurjcqrm53ba5vqsbim5k5ntdp033qk17buyd.onion",  # Another example
+    "http://keybase5wmilwokqirssclfnsqrjds17jdir5wy7y71u3tanwmtp60id.onion"  # Another example
 ]
 
 # Scrapy spider to scrape data from the .onion sites
