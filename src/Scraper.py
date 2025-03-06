@@ -305,7 +305,6 @@ def darkdump_main():
     Platform(True).clean_screen()
     Platform(True).get_operating_system_descriptor()
     bn.LoadDarkdumpBanner()
-    print(notice)
 
     parser = argparse.ArgumentParser(description="Darkdump is an interface for scraping the deepweb through Ahmia. Made by yours truly.")
     parser.add_argument("-v", "--version", help="returns darkdump's version", action="store_true")
