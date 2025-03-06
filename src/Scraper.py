@@ -4,8 +4,8 @@ from fake_useragent import UserAgent
 
 # Setup for proxy and headers
 proxies = {
-    'http': 'socks5h://localhost:9050',
-    'https': 'socks5h://localhost:9050'
+    'http': 'socks5h://127.0.0.1:9050',
+    'https': 'socks5h://127.0.0.1:9050'
 }
 
 headers = {'User-Agent': UserAgent().random}
