@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from scrapy.crawler import CrawlerProcess
 
 # ✅ Corrected Proxy Configuration (Using Privoxy instead of socks5h)
-TOR_PROXY = "http://127.0.0.1:8118"  # Privoxy acts as a bridge for Tor
+TOR_PROXY = "http://127.0.0.1:9050"  # Privoxy acts as a bridge for Tor
 
 # ✅ List of Safe .onion Sites for Testing (Updated with new links)
 target_domains = [
