@@ -234,7 +234,9 @@ class Darkdump(object):
                 return
 
         for idx, result in enumerate(second_results[:min(amount + 1, len(second_results))], start=1):
-            site_url = result.find('cite').text
+            site_url = result.find('cite')
+            site_url = site_element.text if site_element else "No cite tag found"
+            
             if "http://" not in site_url and "https://" not in site_url:
                 site_url = "http://" + site_url
 
