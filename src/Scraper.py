@@ -33,6 +33,15 @@ custom_settings = {
     'HTTP_PROXY': TOR_PROXY,  # Set your Tor proxy here
 }
 
+class OnionSpider(scrapy.Spider):
+    name = 'onion_spider'
+    
+    # Setting start URLs for the spider
+    start_urls = [f"http://{domain}" for domain in target_domains]
+    
+    # Scrapy settings
+    custom_settings = custom_settings  # Added custom settings here
+
     def parse(self, response):
         # Check for status code
         if response.status != 200:
@@ -61,6 +70,7 @@ custom_settings = {
             json.dump(data, f, indent=4)
         
         self.log(f"Data for {response.url} saved in {output_file}")
+
 
 
 # Custom middleware for rotating user agents
