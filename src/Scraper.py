@@ -16,12 +16,11 @@ def tor_driver():
     options.set_preference('network.proxy.socks', '127.0.0.1')
     options.set_preference('network.proxy.socks_port', 9050)
     options.set_preference("network.proxy.socks_remote_dns", True)
-
-    profile = FirefoxProfile()
-    profile.set_preference("browser.privatebrowsing.autostart", True)
+    options.set_preference("browser.privatebrowsing.autostart", True)
+    options.set_preference("profile", "")  # Forces Selenium to use a clean temporary profile
 
     service = Service(GeckoDriverManager().install())
-    driver = webdriver.Firefox(service=service, options=options, firefox_profile=profile)
+    driver = webdriver.Firefox(service=service, options=options)
     return driver
 
 def fetch_onion_links(query, pages=1):
