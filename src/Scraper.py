@@ -2,8 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
 import re
 import time
@@ -11,13 +9,15 @@ import requests
 
 def tor_driver():
     options = Options()
-    options.headless = True
+    options.add_argument("--headless")
     options.set_preference('network.proxy.type', 1)
     options.set_preference('network.proxy.socks', '127.0.0.1')
     options.set_preference('network.proxy.socks_port', 9050)
     options.set_preference("network.proxy.socks_remote_dns", True)
     options.set_preference("browser.privatebrowsing.autostart", True)
-    options.set_preference("profile", "")  # Forces Selenium to use a clean temporary profile
+    options.set_preference("browser.startup.homepage_override.mstone", "ignore")
+    options.set_preference("startup.homepage_welcome_url", "about:blank")
+    options.set_preference("startup.homepage_welcome_url.additional", "about:blank")
 
     service = Service(GeckoDriverManager().install())
     driver = webdriver.Firefox(service=service, options=options)
