@@ -1,23 +1,21 @@
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from webdriver_manager.firefox import GeckoDriverManager
 from bs4 import BeautifulSoup
 import re
-import time
 import requests
+import time
 
 def tor_driver():
     options = Options()
-    options.add_argument("--headless")
+    options.headless = True
     options.set_preference('network.proxy.type', 1)
     options.set_preference('network.proxy.socks', '127.0.0.1')
     options.set_preference('network.proxy.socks_port', 9050)
-    options.set_preference("network.proxy.socks_remote_dns", True)
-    options.set_preference("browser.privatebrowsing.autostart", True)
-    options.set_preference("browser.startup.homepage_override.mstone", "ignore")
-    options.set_preference("startup.homepage_welcome_url", "about:blank")
-    options.set_preference("startup.homepage_welcome_url.additional", "about:blank")
+    options.set_preference('network.proxy.socks_remote_dns', True)
 
     service = Service(GeckoDriverManager().install())
     driver = webdriver.Firefox(service=service, options=options)
@@ -26,36 +24,34 @@ def tor_driver():
 def fetch_onion_links(query, pages=1):
     driver = tor_driver()
     onion_links = set()
+    driver.set_page_load_timeout(30)  # shorter timeout to avoid hanging
 
-    onionsearch_url = 'https://onionengine.com/' # OnionSearch public frontend URL (clearnet)
+    onionsearch_url = 'https://onionengine.com/'
 
-    driver.get(onionsearch_url)
-    time.sleep(5)
+    try:
+        driver.get(onionsearch_url)
+        driver.implicitly_wait(10)
 
-    search_box = driver.find_element(By.NAME, 'search')
-    search_box.send_keys(query + Keys.RETURN)
-    time.sleep(5)
+        search_box = driver.find_element(By.NAME, 'search')
+        search_box.send_keys(query + Keys.RETURN)
 
-    for page in range(pages):
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        for page in range(pages):
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-        for link in soup.find_all('a', href=True):
-            href = link['href']
-            if re.match(r'http[s]?://[a-z2-7]{56}\.onion', href):
-                onion_links.add(href)
+            for link in soup.find_all('a', href=True):
+                href = link['href']
+                if re.match(r'http[s]?://[a-z2-7]{56}\.onion', href):
+                    onion_links.add(href)
 
-        try:
-            next_button = driver.find_element(By.LINK_TEXT, 'Next')
-            next_button.click()
-            time.sleep(5)
-        except:
-            break
+            try:
+                next_button = driver.find_element(By.LINK_TEXT, 'Next')
+                next_button.click()
+            except Exception as e:
+                print(f"Pagination stopped or no more pages: {e}")
+                break
 
-    driver.quit()
-    return list(onion_links)
-
-import requests
-from bs4 import BeautifulSoup
+        driver.quit()
+        return list(onion_links)
 
 proxies = {
     'http': 'socks5h://127.0.0.1:9050',
@@ -64,15 +60,13 @@ proxies = {
 
 def scrape_site(url):
     try:
-        res = requests.get(url, proxies=proxies, timeout=15)
+        res = requests.get(url, proxies=proxies, timeout=20)
         soup = BeautifulSoup(res.text, 'html.parser')
         text = soup.get_text()
 
-        # Basic OSINT Patterns
         emails = re.findall(r'[\w\.-]+@[\w\.-]+\.\w+', text)
         bitcoin = re.findall(r'\b[13][a-km-zA-HJ-NP-Z1-9]{25,34}\b', text)
         monero = re.findall(r'4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}', text)
-
         usernames = re.findall(r'@[A-Za-z0-9_]{3,}', text)
 
         return {
@@ -92,7 +86,7 @@ if __name__ == '__main__':
     onion_urls = fetch_onion_links(query, pages=1)
 
     print(f'Found {len(onion_urls)} onion links.')
-    
+
     for url in onion_urls:
         print(f'\nScraping {url}')
         result = scrape_site(url)
