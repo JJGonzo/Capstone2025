@@ -21,12 +21,13 @@ class DarkWebSpider(scrapy.Spider):
         'RETRY_TIMES': 5,  # Retry up to 5 times
         'RETRY_HTTP_CODES': [503],  # Retry on 503 errors
         'DOWNLOAD_DELAY': 1,  # Add a delay to avoid being rate-limited
+        'DOWNLOAD_TIMEOUT': 10,  # Timeout after 10 seconds
     }
 
     def start_requests(self):
         for url in target_domains:
             yield scrapy.Request(
-                f"http://{url}",  # Ensure the correct format for the .onion link
+                url,  # Ensure the correct format for the .onion link
                 callback=self.parse,
                 meta={"proxy": TOR_PROXY}  # Correct proxy usage
             )
