@@ -16,9 +16,13 @@ class Configuration:
 def fetch_search_results(query, use_proxy):
     headers = {'User-Agent': 'Mozilla/5.0'}
     proxy_config = {'http': Configuration.__socks5init__, 'https': Configuration.__socks5init__} if use_proxy else {}
-    
+    url = Configuration.__darkdump_api__ + query
+
+    if not url.startswith('http://') and not url.startswith('https://'):
+        url = 'https://' + url  # Ensure the URL has the https protocol
+
     try:
-        response = requests.get(Configuration.__darkdump_api__ + query, headers=headers, proxies=proxy_config)
+        response = requests.get(url, headers=headers, proxies=proxy_config)
         soup = BeautifulSoup(response.content, 'html.parser')
         return soup.find_all('a')
     except Exception as e:
@@ -37,6 +41,9 @@ def scrape_site(url, use_proxy, scrape_images):
     headers = {'User-Agent': 'Mozilla/5.0'}
     proxy_config = {'http': Configuration.__socks5init__, 'https': Configuration.__socks5init__} if use_proxy else {}
     
+    if not url.startswith('http://') and not url.startswith('https://'):
+        url = 'http://' + url  # Ensure the URL has the http protocol
+
     try:
         response = requests.get(url, headers=headers, proxies=proxy_config)
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -72,13 +79,9 @@ def main():
     if args.scrape:
         for link in onion_links:
             print(f"Scraping {link}...")
-
-            # Call the scraping function with proxy and image scraping options
             text, images = scrape_site(link, use_proxy=args.proxy, scrape_images=args.images)
-
             if text:
                 print(f"Extracted text: {text[:500]}...")  # Display only the first 500 characters
-
             if args.images and images:
                 print(f"Found images: {len(images)}")
                 for img in images:
