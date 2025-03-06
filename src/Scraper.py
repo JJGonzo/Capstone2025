@@ -2,23 +2,26 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-# Configure the Tor Proxy
-TOR_PROXY = "socks5h://127.0.0.1:9050"
+# Use the correct SOCKS5H proxy
 proxies = {
-    'http': TOR_PROXY,
-    'https': TOR_PROXY,
+    'http': 'socks5h://127.0.0.1:9050',
+    'https': 'socks5h://127.0.0.1:9050',
 }
 
-# Target domains to scan
+# Target .onion domains
 target_domains = [
     "lgh3eosuqrrtwx3s4nurujcqrm53ba5vqsbim5k5ntdp033qkl7buyd.onion"
 ]
 
-# Function to scrape data from .onion sites
+# Function to scrape .onion sites
 def scrape_onion_site(url):
     try:
         print(f"Scraping: {url}")
-        response = requests.get(f"http://{url}", proxies=proxies, timeout=30)
+        
+        # Ensure the full URL has http:// (not https://)
+        full_url = f"http://{url}" if not url.startswith("http") else url
+        
+        response = requests.get(full_url, proxies=proxies, timeout=60)
 
         if response.status_code != 200:
             print(f"Error fetching {url}: {response.status_code}")
