@@ -2,9 +2,13 @@ import scrapy
 import json
 from bs4 import BeautifulSoup
 from scrapy.crawler import CrawlerProcess
+import socks
+import socket
+from scrapy.downloadermiddlewares.httpproxy import HttpProxyMiddleware
 
-# ✅ Updated Proxy Configuration to Use SOCKS5 for Tor
-TOR_PROXY = "socks5://127.0.0.1:9050"  # Using SOCKS5 directly to connect to Tor
+# Set up SOCKS5 Proxy for Scrapy using PySocks
+socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 9050)
+socket.socket = socks.socksocket
 
 # ✅ List of Safe .onion Sites for Testing (Updated with new links)
 target_domains = [
@@ -21,14 +25,17 @@ class DarkWebSpider(scrapy.Spider):
         'RETRY_TIMES': 5,  # Retry up to 5 times
         'RETRY_HTTP_CODES': [503],  # Retry on 503 errors
         'DOWNLOAD_DELAY': 1,  # Add a delay to avoid being rate-limited
+        'DOWNLOADER_MIDDLEWARES': {
+            'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,  # Ensuring the proxy is set
+        },
     }
 
     def start_requests(self):
         for url in target_domains:
             yield scrapy.Request(
-                f"http://{url}",  # Ensure the correct format for the .onion link
+                url,  # Ensure the correct format for the .onion link
                 callback=self.parse,
-                meta={"proxy": TOR_PROXY}  # Using SOCKS5 directly
+                meta={"proxy": "socks5://127.0.0.1:9050"}  # Correct proxy usage
             )
 
     def parse(self, response):
@@ -38,7 +45,7 @@ class DarkWebSpider(scrapy.Spider):
             yield scrapy.Request(
                 response.url, 
                 callback=self.parse, 
-                meta={"proxy": TOR_PROXY}, 
+                meta={"proxy": "socks5://127.0.0.1:9050"}, 
                 dont_filter=True  # Don't filter this request
             )
             return
