@@ -27,15 +27,6 @@ from nltk.tokenize import word_tokenize
 from nltk.probability import FreqDist
 from textblob import TextBlob
 
-
-notice = '''
-Note: 
-    This tool is not to be used for illegal purposes.
-    The author is not responsible for any misuse of Darkdump.
-    May God bless you all.
-    https://joshschiavone.com - https://github.com/josh0xA
-'''
-
 class Colors:
     W = '\033[0m'  # white 
     R = '\033[31m'  # red
@@ -60,13 +51,13 @@ class Configuration:
 
     DARKDUMP_REQUESTS_SUCCESS_CODE = 200
     DARKDUMP_PROXY = False
-    DARKDUMP_TOR_RUNNING = False
+    DARKDUMP_TOR_RUNNING = False 
 
     descriptions = []
     urls = []
 
     __socks5init__ = "socks5h://localhost:9050"
-    __darkdump_api__ = "https://onionsearchengine.com/search?q="
+    __darkdump_api__ = "https://ahmia.fi/search/?q="
 
 class Platform(object):
     def __init__(self, execpltf):
@@ -97,7 +88,7 @@ class Platform(object):
         else: pass
 
     def check_tor_connection(self, proxy_config):
-        test_url = 'http://api.ipify.org'
+        test_url = 'http://api.ipify.org' 
         try:
             response = requests.get(test_url, proxies=proxy_config, timeout=10)
             print(f"{Colors.BOLD + Colors.G}Tor service is active. {Colors.END}")
@@ -122,7 +113,7 @@ class Darkdump(object):
         word_tokens = word_tokenize(clean_text.lower())
         filtered_text = [word for word in word_tokens if word.isalnum() and not word in stop_words]
         freq_dist = FreqDist(filtered_text)
-        keywords = list(freq_dist)[:18]
+        keywords = list(freq_dist)[:18] 
         return keywords
 
     def analyze_text(self, text):
@@ -131,7 +122,7 @@ class Darkdump(object):
         # Remove stopwords
         stop_words = set(stopwords.words('english'))
         filtered_words = [word for word in words if word.lower() not in stop_words and word.isalnum()]
-
+        
         freq_dist = FreqDist(filtered_words)
         top_words = freq_dist.most_common(10)
 
@@ -158,7 +149,7 @@ class Darkdump(object):
         for url in image_urls:
             html_content += f'<img src="{url}" alt="Image" style="padding: 10px; height: 200px;"><br>'
         html_content += '</body></html>'
-
+        
         with open(filepath, 'w') as file:
             file.write(html_content)
         return filepath
@@ -204,49 +195,28 @@ class Darkdump(object):
         try:
             page = requests.get(Configuration.__darkdump_api__ + query, headers=headers)
             soup = BeautifulSoup(page.content, 'html.parser')
-
-            # Extract .onion links from search results
-            results = soup.find_all('a')  # Find all <a> tags
-
-            onion_links = []
-            for link in results:
-                href = link.get('href')
-                if href and '.onion' in href:
-                    onion_links.append(href)
-
-            # Remove duplicates
-            onion_links = list(set(onion_links))
-
-            # Debugging: Print found .onion links
-            print(f"Found {len(onion_links)} .onion links: {onion_links}")
-
-            # Assign extracted onion links to second_results (Fix for NameError)
-            second_results = [BeautifulSoup(link, 'html.parser') for link in onion_links]
-
+            results = soup.find(id='ahmiaResultsPage')  # Adjust based on actual result container ID
+            second_results = results.find_all('li', class_='result')  # Adjust based on actual results tag and class
         except Exception as e:
-            print(f"{Colors.BOLD + Colors.R} Error in fetching OnionSearch: {e} {Colors.END}")
+            print(f"{Colors.BOLD + Colors.R} Error in fetching Ahmia.fi: {e} {Colors.END}")
             return
 
         seen_urls = set()  # This set will store URLs to avoid duplicates
 
-        if scrape_sites:
-            if Platform(True).check_tor_connection(proxy_config) == False:
-                return
+        if scrape_sites: 
+            if Platform(True).check_tor_connection(proxy_config) == False: return
 
         for idx, result in enumerate(second_results[:min(amount + 1, len(second_results))], start=1):
-            site_url = result.find('cite')
-            site_url = site_element.text if site_element else "No cite tag found"
-            
+            site_url = result.find('cite').text
             if "http://" not in site_url and "https://" not in site_url:
                 site_url = "http://" + site_url
 
             if site_url in seen_urls:
                 continue
             seen_urls.add(site_url)
-
+            
             title = result.find('a').text if result.find('a') else "No title available"
             description = result.find('p').text if result.find('p') else "No description available"
-
             try:
                 if scrape_sites:
                     try:
@@ -281,18 +251,18 @@ class Darkdump(object):
                         if scrape_images:
                             if image_urls:
                                 print(images_str)
-                            else:
-                                print(f"{Colors.BOLD + Colors.GR} No images found. Skipping parse. {Colors.END}")
+                            else: print(f"{Colors.BOLD + Colors.GR} No images found. Skipping parse. {Colors.END}")
 
-                    except Exception as e:
+                    except Exception as e: 
                         print(f"{Colors.BOLD + Colors.O} Dead onion, skipping...: {site_url} {Colors.END}")
 
-                else:  # No scrape
+                else: # No scrape
                     print(f"{Colors.BOLD}{idx + 1}. --- [+] Website: {Colors.END}{Colors.P}{title.strip()}{Colors.END}")
                     print(f"{Colors.BOLD}\t Information: {Colors.END}{Colors.G}{description.strip()}{Colors.END}")
                     print(f"{Colors.BOLD}| Onion Link: {Colors.END}{Colors.G}{site_url}{Colors.END}\n")
 
-            except KeyboardInterrupt:
+
+            except KeyboardInterrupt as ki:
                 print(f"{Colors.BOLD + Colors.R} Quitting... {Colors.END}")
 
 
