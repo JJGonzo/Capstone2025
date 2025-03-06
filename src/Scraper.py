@@ -21,11 +21,14 @@ def fetch_search_results(query, use_proxy):
     if not url.startswith('http://') and not url.startswith('https://'):
         url = 'https://' + url  # Ensure the URL has the https protocol
 
+    print(f"Fetching URL: {url} with proxy: {proxy_config}")  # Added logging
+
     try:
-        response = requests.get(url, headers=headers, proxies=proxy_config)
+        response = requests.get(url, headers=headers, proxies=proxy_config, timeout=10)
+        response.raise_for_status()  # Check for HTTP errors
         soup = BeautifulSoup(response.content, 'html.parser')
         return soup.find_all('a')
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
         print(f"Error fetching Ahmia.fi results: {e}")
         return []
 
@@ -47,13 +50,16 @@ def scrape_site(url, use_proxy, scrape_images):
     if not url.startswith('http://') and not url.startswith('https://'):
         url = 'http://' + url.lstrip('/')
 
+    print(f"Scraping URL: {url} with proxy: {proxy_config}")  # Added logging
+
     try:
-        response = requests.get(url, headers=headers, proxies=proxy_config)
+        response = requests.get(url, headers=headers, proxies=proxy_config, timeout=10)
+        response.raise_for_status()  # Check for HTTP errors
         soup = BeautifulSoup(response.content, 'html.parser')
         text_content = soup.get_text()
         image_urls = [img['src'] for img in soup.find_all('img') if img.get('src')] if scrape_images else []
         return text_content, image_urls
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
         print(f"Error scraping {url}: {e}")
         return None, []
 
