@@ -9,12 +9,25 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 def tor_driver():
     options = Options()
-    options.headless = True
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    # Explicitly configure proxy settings for Tor
     options.set_preference('network.proxy.type', 1)
     options.set_preference('network.proxy.socks', '127.0.0.1')
-    options.set_preference('network.proxy.socks_port', 9050)  # CONFIRMED CORRECT
+    options.set_preference('network.proxy.socks_port', 9050)
     options.set_preference("network.proxy.socks_remote_dns", True)
+
+    # Explicitly specify a clean temporary profile
     options.set_preference("browser.privatebrowsing.autostart", True)
+    options.set_preference("browser.startup.homepage_override.mstone", "ignore")
+    options.set_preference("startup.homepage_welcome_url", "about:blank")
+    options.set_preference("startup.homepage_welcome_url", "about:blank")
+    options.set_preference("startup.homepage_welcome_url.additional", "about:blank")
+
+    # Force Selenium to use its managed temporary profile
+    options.set_preference('profile', '')
 
     service = Service(GeckoDriverManager().install())
     driver = webdriver.Firefox(service=service, options=options)
