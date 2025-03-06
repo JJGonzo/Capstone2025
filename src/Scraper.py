@@ -23,7 +23,7 @@ def tor_driver():
 def fetch_onion_links(query, pages=1):
     driver = tor_driver()
     onion_links = set()
-    driver.set_page_load_timeout(30)  # shorter timeout to avoid hanging
+    driver.set_page_load_timeout(30)
 
     onionsearch_url = 'https://onionengine.com/'
 
@@ -33,6 +33,7 @@ def fetch_onion_links(query, pages=1):
 
         search_box = driver.find_element(By.NAME, 'search')
         search_box.send_keys(query + Keys.RETURN)
+        time.sleep(3)
 
         for page in range(pages):
             soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -45,12 +46,18 @@ def fetch_onion_links(query, pages=1):
             try:
                 next_button = driver.find_element(By.LINK_TEXT, 'Next')
                 next_button.click()
+                time.sleep(3)
             except Exception as e:
-                print(f"Pagination stopped or no more pages: {e}")
+                print(f"No more pages or pagination issue: {e}")
                 break
 
+    except Exception as main_e:
+        print(f"Error fetching onion links: {main_e}")
+
+    finally:
         driver.quit()
-        return list(onion_links)
+
+    return list(onion_links)
 
 def scrape_site(url):
     proxies = {
