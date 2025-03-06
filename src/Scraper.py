@@ -66,7 +66,7 @@ class Configuration:
     urls = []
 
     __socks5init__ = "socks5h://localhost:9050"
-    __darkdump_api__ = "https://ahmia.fi/search/?q="
+    __darkdump_api__ = "https://onionsearchengine.com/search?q="
 
 class Platform(object):
     def __init__(self, execpltf):
