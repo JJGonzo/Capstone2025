@@ -27,7 +27,7 @@ def fetch_onion_links(query, pages=1):
     driver = tor_driver()
     onion_links = set()
 
-    onionsearch_url = 'https://onionsearch.io/'  # OnionSearch public frontend URL (clearnet)
+    onionsearch_url = 'https://onionengine.com/' # OnionSearch public frontend URL (clearnet)
 
     driver.get(onionsearch_url)
     time.sleep(5)
