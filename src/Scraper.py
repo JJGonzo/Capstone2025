@@ -3,8 +3,8 @@ import json
 from bs4 import BeautifulSoup
 from scrapy.crawler import CrawlerProcess
 
-# ✅ Corrected Proxy Configuration (Using Privoxy instead of socks5h)
-TOR_PROXY = "http://127.0.0.1:9050"  # Privoxy acts as a bridge for Tor
+# ✅ Updated Proxy Configuration to Use SOCKS5 for Tor
+TOR_PROXY = "socks5://127.0.0.1:9050"  # Using SOCKS5 directly to connect to Tor
 
 # ✅ List of Safe .onion Sites for Testing (Updated with new links)
 target_domains = [
@@ -21,15 +21,14 @@ class DarkWebSpider(scrapy.Spider):
         'RETRY_TIMES': 5,  # Retry up to 5 times
         'RETRY_HTTP_CODES': [503],  # Retry on 503 errors
         'DOWNLOAD_DELAY': 1,  # Add a delay to avoid being rate-limited
-        'DOWNLOAD_TIMEOUT': 10,  # Timeout after 10 seconds
     }
 
     def start_requests(self):
         for url in target_domains:
             yield scrapy.Request(
-                url,  # Ensure the correct format for the .onion link
+                f"http://{url}",  # Ensure the correct format for the .onion link
                 callback=self.parse,
-                meta={"proxy": TOR_PROXY}  # Correct proxy usage
+                meta={"proxy": TOR_PROXY}  # Using SOCKS5 directly
             )
 
     def parse(self, response):
