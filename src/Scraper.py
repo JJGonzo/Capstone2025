@@ -9,10 +9,9 @@ TOR_PROXY = "socks5h://127.0.0.1:9050"
 
 # Target domains to scan - replace with your .onion domains
 target_domains = [
-    "dreadytofatroptsdj6io7l3xptbet6onoyno2yv7jicoxxnyazubrad.onion",
-    "uicrmrli3ir66c4fx4l5gv5hdb6jrzy72bitrk25w5dhv5o6sxmajxqd.onion",
-    "lgh3eosuqrrtwx3s4nurjcqrm53ba5vqsbim5k5ntdp033qk17buyd.onion",
-    "keybase5wmilwokqirssclfnsqrjds17jdir5wy7y71u3tanwmtp60id.onion"
+    "exploitivzcm5dawzhe6c32bbylyggbjvh5dyvsvb5lkuz5ptmunkmqd.onion",
+    "uicrmrli3i4r66c4fx415gv5hdb6jrzy72bitrk25w5dhv5o6sxmajxqd.onion",
+    "lgh3eosuqrrtwx3s4nurujcqrm53ba5vqsbim5k5ntdp033qkl7buyd.onion"
 ]
 
 # Updated Scrapy settings section
@@ -22,7 +21,7 @@ custom_settings = {
         'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,
     },
     'HTTPPROXY_ENABLED': True,
-    'HTTPPROXY_PROXY': "socks5h://127.0.0.1:9050"
+    'HTTPPROXY_PROXY': TOR_PROXY
 }
 
 class OnionSpider(scrapy.Spider):
