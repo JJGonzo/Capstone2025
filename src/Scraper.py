@@ -1,73 +1,59 @@
-import scrapy
-import json
-from bs4 import BeautifulSoup
-from scrapy.crawler import CrawlerProcess
+import re
+import requests
+from fake_useragent import UserAgent
 
-# ✅ Corrected Proxy Configuration (Using Privoxy instead of socks5h)
-TOR_PROXY = "http://127.0.0.1:8118"  # Privoxy acts as a bridge for Tor
+# Setup for proxy and headers
+proxies = {
+    'http': 'socks5h://localhost:9050',
+    'https': 'socks5h://localhost:9050'
+}
 
-# ✅ List of Safe .onion Sites for Testing (Updated with new links)
-target_domains = [
-    "dreadytofatroptsdj6io7l3xptbet6onoyno2yv7jicoxxnyazubrad.onion",  # Example .onion link
-    "nzdmnfcf22s5pd3wvyfy3jhwoubv6qunmdglspqhurqunvr52khattdad.onion",  # Another example
-]
+headers = {'User-Agent': UserAgent().random}
 
-class DarkWebSpider(scrapy.Spider):
-    name = "darkweb_scraper"
+# Function to scrape onion links from a given URL
+def find_onion_links(url):
+    try:
+        # Request to the given URL
+        response = requests.get(url, headers=headers, proxies=proxies)
+        response.raise_for_status()  # Check if the request was successful
 
-    # Set the headers to mimic a real browser request
-    custom_settings = {
-        'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'RETRY_ENABLED': True,
-        'RETRY_TIMES': 5,  # Retry up to 5 times
-        'RETRY_HTTP_CODES': [503],  # Retry on 503 errors
-        'DOWNLOAD_DELAY': 1,  # Add a delay to avoid being rate-limited
-    }
+        # Regular expression to find .onion links in the HTML content
+        text_content = response.text
+        pattern = r"\b\w+\.onion\b"  # Regex pattern to find .onion links
+        matches = re.findall(pattern, text_content)
 
-    def start_requests(self):
-        for url in target_domains:
-            yield scrapy.Request(
-                f"http://{url}",  # Ensure the correct format for the .onion link
-                callback=self.parse,
-                meta={"proxy": TOR_PROXY}  # Correct proxy usage
-            )
+        # Save the extracted onion links to a file
+        with open('result.txt', 'w') as file:
+            for match in matches:
+                file.write(match + '\n')
 
-    def parse(self, response):
-        # Check for errors (e.g., 503)
-        if response.status == 503:
-            self.logger.warning(f"503 error on {response.url}. Retrying...")
-            yield scrapy.Request(
-                response.url, 
-                callback=self.parse, 
-                meta={"proxy": TOR_PROXY}, 
-                dont_filter=True  # Don't filter this request
-            )
-            return
+        print(f"Found {len(matches)} .onion links and saved them to 'result.txt'.")
+    
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching the URL {url}: {e}")
 
-        soup = BeautifulSoup(response.text, "html.parser")
 
-        # ✅ Extract Emails
-        emails = set(a.text for a in soup.find_all("a") if "@" in a.text)
+# Function to check if a given onion link is valid
+def is_onion_site_valid(url):
+    try:
+        response = requests.get(url, headers=headers, proxies=proxies)
+        # Checking if the site is up and returns status code 200
+        if response.status_code == 200:
+            print(f"{url} is valid!")
+            return True
+        else:
+            print(f"{url} returned status code {response.status_code}. Not valid.")
+            return False
+    except requests.exceptions.RequestException as e:
+        print(f"Error checking {url}: {e}")
+        return False
 
-        # ✅ Extract Bitcoin Wallets
-        btc_wallets = set(a.text for a in soup.find_all("a") if a.text.startswith("1") or a.text.startswith("3"))
 
-        # ✅ Extract Links
-        links = set(a["href"] for a in soup.find_all("a", href=True))
+# Example usage:
+# Scraping .onion links from the provided websites
+find_onion_links("http://dreadytofatroptsdj6io7l3xptbet6onoyno2yv7jicoxxnyazubrad.onion")
+find_onion_links("http://nzdmnfcf22s5pd3wvyfy3jhwoubv6qunmdglspqhurqunvr52khattdad.onion")
 
-        # ✅ Save Data
-        data = {
-            "emails": list(emails),
-            "btc_wallets": list(btc_wallets),
-            "links": list(links),
-        }
-
-        with open("darkweb_results.json", "w") as f:
-            json.dump(data, f, indent=4)
-
-        self.log("\n✅ Dark web data saved in darkweb_results.json")
-
-# ✅ Run the Scrapy Spider
-process = CrawlerProcess()
-process.crawl(DarkWebSpider)
-process.start()
+# Checking if the provided onion links are valid
+is_onion_site_valid("http://dreadytofatroptsdj6io7l3xptbet6onoyno2yv7jicoxxnyazubrad.onion")
+is_onion_site_valid("http://nzdmnfcf22s5pd3wvyfy3jhwoubv6qunmdglspqhurqunvr52khattdad.onion")
