@@ -196,33 +196,40 @@ class Darkdump(object):
         return links
 
 
-    def crawl(self, query, amount, use_proxy=False, scrape_sites=False, scrape_images=False):
-        headers = {'User-Agent': random.choice(Headers.user_agents)}
-        proxy_config = {'http': 'socks5h://localhost:9050', 'https': 'socks5h://localhost:9050'} if use_proxy else {}
+def crawl(self, query, amount, use_proxy=False, scrape_sites=False, scrape_images=False):
+    headers = {'User-Agent': random.choice(Headers.user_agents)}
 
-# Fetching the initial search page
-try:
-    page = requests.get(Configuration.__darkdump_api__ + query, headers=headers)
-    soup = BeautifulSoup(page.content, 'html.parser')
+    # Fix the proxy configuration assignment
+    proxy_config = {}
+    if use_proxy:
+        proxy_config = {
+            'http': 'socks5h://localhost:9050',
+            'https': 'socks5h://localhost:9050'
+        }
 
-    # Extract .onion links from search results
-    results = soup.find_all('a')  # Find all <a> tags
+    # Fetching the initial search page
+    try:
+        page = requests.get(Configuration.__darkdump_api__ + query, headers=headers, proxies=proxy_config)
+        soup = BeautifulSoup(page.content, 'html.parser')
 
-    onion_links = []
-    for link in results:
-        href = link.get('href')
-        if href and '.onion' in href:
-            onion_links.append(href)
+        # Extract .onion links from search results
+        results = soup.find_all('a')  # Find all <a> tags
 
-    # Remove duplicates
-    onion_links = list(set(onion_links))
+        onion_links = []
+        for link in results:
+            href = link.get('href')
+            if href and '.onion' in href:
+                onion_links.append(href)
 
-    # Debugging: Print found .onion links
-    print(f"Found {len(onion_links)} .onion links: {onion_links}")
+        # Remove duplicates
+        onion_links = list(set(onion_links))
 
-except Exception as e:
-    print(f"{Colors.BOLD + Colors.R} Error in fetching OnionSearch: {e} {Colors.END}")
-    return
+        # Debugging: Print found .onion links
+        print(f"Found {len(onion_links)} .onion links: {onion_links}")
+
+    except Exception as e:
+        print(f"{Colors.BOLD + Colors.R} Error in fetching OnionSearch: {e} {Colors.END}")
+        return
 
 seen_urls = set()  # This set will store URLs to avoid duplicates
 
