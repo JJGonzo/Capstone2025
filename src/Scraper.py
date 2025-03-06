@@ -1,10 +1,8 @@
-import subprocess
 import json
-import os
-import random
-from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
 import scrapy
 from scrapy.crawler import CrawlerProcess
+from bs4 import BeautifulSoup
+import random
 
 # Configure the Tor Proxy (make sure Tor is running on port 9050)
 TOR_PROXY = "socks5h://127.0.0.1:9050"
@@ -14,7 +12,7 @@ target_domains = [
     "dreadytofatroptsdj6io7l3xptbet6onoyno2yv7jicoxxnyazubrad.onion",  # Example .onion link
     "uicrmrli3ir66c4fx4l5gv5hdb6jrzy72bitrk25w5dhv5o6sxmajxqd.onion",  # Another example
     "lgh3eosuqrrtwx3s4nurjcqrm53ba5vqsbim5k5ntdp033qk17buyd.onion",  # Another example
-    "http://keybase5wmilwokqirssclfnsqrjds17jdir5wy7y71u3tanwmtp60id.onion"  # Another example
+    "keybase5wmilwokqirssclfnsqrjds17jdir5wy7y71u3tanwmtp60id.onion"  # Another example
 ]
 
 # Scrapy spider to scrape data from the .onion sites
@@ -24,7 +22,6 @@ class OnionSpider(scrapy.Spider):
     # Setting start URLs for the spider
     start_urls = [f"http://{domain}" for domain in target_domains]
     
-    # Scrapy settings
     custom_settings = {
         'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'DOWNLOADER_MIDDLEWARES': {
@@ -66,7 +63,7 @@ class OnionSpider(scrapy.Spider):
 
 
 # Custom middleware for rotating user agents
-class RandomUserAgentMiddleware(UserAgentMiddleware):
+class RandomUserAgentMiddleware:
     def __init__(self, user_agent=''):
         # List of user agents for rotation
         self.user_agent_list = [
