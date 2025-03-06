@@ -52,12 +52,12 @@ def fetch_onion_links(query, pages=1):
         driver.quit()
         return list(onion_links)
 
-proxies = {
-    'http': 'socks5h://127.0.0.1:9050',
-    'https': 'socks5h://127.0.0.1:9050'
-}
-
 def scrape_site(url):
+    proxies = {
+        'http': 'socks5h://127.0.0.1:9050',
+        'https': 'socks5h://127.0.0.1:9050'
+    }
+
     try:
         res = requests.get(url, proxies=proxies, timeout=20)
         soup = BeautifulSoup(res.text, 'html.parser')
