@@ -48,11 +48,14 @@ def scrape_site(url, use_proxy, scrape_images):
         return None, []
 
 def main():
-    parser = argparse.ArgumentParser(description="Darkdump: A simple dark web search and scraper.")
-    parser.add_argument("-q", "--query", help="The search query for Ahmia.fi", required=True)
+    parser = argparse.ArgumentParser(description="Scraper for searching and scraping .onion sites.")
+
+    parser.add_argument("-q", "--query", help="The keyword or string you want to search on the deep web", type=str, required=True)
+    parser.add_argument("-a", "--amount", help="The amount of results you want to retrieve", type=int, default=10)
     parser.add_argument("-p", "--proxy", help="Use Tor proxy for scraping", action="store_true")
     parser.add_argument("-i", "--images", help="Scrape images and visual content from the site", action="store_true")
     parser.add_argument("-s", "--scrape", help="Scrape the actual site for content and look for keywords", action="store_true")
+
     args = parser.parse_args()
     
     print(f"Searching Ahmia.fi for: {args.query}")
