@@ -18,15 +18,15 @@ def fetch_onion_links(query, pages=1):
         res = requests.get(url, headers=headers)
         soup = BeautifulSoup(res.text, 'html.parser')
 
-        # Specifically extract links under results section
-        results = soup.find_all('div', class_='result')
-        
-        for result in results:
-            link_tag = result.find('a', href=True)
-            if link_tag:
-                href = link_tag['href']
-                if ".onion" in href:
-                    onion_links.add(href.strip())
+        # Extract all links explicitly ending with .onion
+        links = soup.find_all('a', href=True)
+        for link in links:
+            href = link['href']
+            if '.onion' in href and not 'onionengine.com' in href:
+                # Ensure full onion link is properly formatted
+                onion_match = re.search(r'(https?://[a-z2-7]{56}\.onion)', href)
+                if onion_match:
+                    onion_links.add(onion_match.group(1))
 
     return list(onion_links)
 
