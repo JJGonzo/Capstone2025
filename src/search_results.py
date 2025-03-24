@@ -41,7 +41,7 @@ def filter_results(data, field_key, query):
     return matches
 
 def display_results(results):
-    print(f"\n✅ Found {len(results)} matching result(s):\n")
+    print(f"\n Found {len(results)} matching result(s):\n")
     for r in results:
         print(f"URL: {r['url']}")
         if r['emails']: print(f"  Emails: {r['emails']}")
@@ -73,11 +73,11 @@ if __name__ == "__main__":
     field_key = field_map[field]
     all_values = list_unique_values(data, field_key)
 
-    print(f"\n📋 Found {len(all_values)} unique values in the {field.title()} field:")
+    print(f"\n Found {len(all_values)} unique values in the {field.title()} field:")
     for val in all_values:
         print(f"  - {val}")
 
-    query = input(f"\n🔍 Enter a search term to filter, or press Enter to list all: ").strip()
+    query = input(f"\n Enter a search term to filter, or press Enter to list all: ").strip()
 
     if query:
         results = filter_results(data, field_key, query)
