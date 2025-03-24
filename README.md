@@ -4,6 +4,7 @@ A Python-based tool that scrapes `.onion` websites on the Tor network for open s
 
 ---
 
+
 ## 🚀 Features
 
 - 🔍 Extracts:
@@ -42,10 +43,12 @@ python scraper.py --mode manual
 
 python scraper.py --mode file --file onions.csv
 
+
 ## 📁 Output
 results.json
 
 results.csv
+
 
 ## 🔍 Searching Your Results
 Use search_results.py to search through collected OSINT data.
