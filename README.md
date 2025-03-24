@@ -50,7 +50,7 @@ results.csv
 ## 🔍 Searching Your Results
 Use search_results.py to search through collected OSINT data.
 
-''bash python search_results.py
+python search_results.py
 
 Select field: Email, BTC, Monero, Username, IP
 
