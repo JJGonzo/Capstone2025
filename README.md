@@ -35,13 +35,13 @@ A Python-based tool that scrapes `.onion` websites on the Tor network for open s
 
 ```bash
 python scraper.py --mode hiddenwiki --limit 10
-```markdown
+```
 
-2. Scrape from manual input
+### Scrape from manual input
 
 python scraper.py --mode manual
 
-3. Scrape from a list in CSV or TXT file
+### Scrape from a list in CSV or TXT file
 
 python scraper.py --mode file --file onions.csv
 
