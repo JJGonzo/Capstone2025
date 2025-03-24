@@ -20,10 +20,8 @@ A Python-based tool that scrapes `.onion` websites on the Tor network for open s
 - 📄 Logs errors to timestamped `errors.log`
 - 🔐 Routes all traffic through Tor (`socks5h://127.0.0.1:9050`)
 - 💬 Built-in search tool for querying scraped data (`search_results.py`)
-- 🧪 Graceful error handling and retry logic
-- ✅ Pre-scrape Tor connectivity check
+- 🧪 Graceful error handling
 
----
 
 ## 📦 Requirements
 
