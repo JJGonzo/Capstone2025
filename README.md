@@ -39,11 +39,15 @@ python scraper.py --mode hiddenwiki --limit 10
 
 ### Scrape from manual input
 
+```bash
 python scraper.py --mode manual
+```
 
 ### Scrape from a list in CSV or TXT file
 
+```bash
 python scraper.py --mode file --file onions.csv
+```
 
 
 ## 📁 Output
