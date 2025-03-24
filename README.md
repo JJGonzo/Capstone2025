@@ -35,6 +35,7 @@ A Python-based tool that scrapes `.onion` websites on the Tor network for open s
 
 ```bash
 python scraper.py --mode hiddenwiki --limit 10
+```markdown
 
 2. Scrape from manual input
 
