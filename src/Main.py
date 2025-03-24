@@ -115,7 +115,6 @@ if __name__ == '__main__':
                         help="Scraping mode: hiddenwiki | manual | file")
     parser.add_argument('--file', type=str, help="Path to CSV or text file with .onion links (required if mode is 'file')")
     parser.add_argument('--limit', type=int, default=None, help="Max number of onion links to scrape")
-    parser.add_argument('--yes', action='store_true', help="Skip confirmation prompt and auto-proceed")
 
     args = parser.parse_args()
 
@@ -141,12 +140,11 @@ if __name__ == '__main__':
         onion_urls = onion_urls[:args.limit]
         print(f"Limiting scrape to first {args.limit} links.")
 
-    # Confirm before proceeding unless --yes is used
-    if not args.yes:
-        confirm = input(f"\nProceed with scraping {len(onion_urls)} links? (y/n): ").strip().lower()
-        if confirm != 'y':
-            print("Aborting scrape.")
-            sys.exit(0)
+    # Always confirm before scraping
+    confirm = input(f"\nProceed with scraping {len(onion_urls)} links? (y/n): ").strip().lower()
+    if confirm != 'y':
+        print("Aborting scrape.")
+        sys.exit(0)
 
     useful_results = []
 
