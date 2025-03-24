@@ -1,13 +1,61 @@
-# Capstone2025
+# 🕵️‍♂️ Dark Web OSINT Scraper
 
-![darkpointimage](https://github.com/user-attachments/assets/7629ecaf-2167-4561-a4c7-c3d36067adef)
+A Python-based tool that scrapes `.onion` websites on the Tor network for open source intelligence (OSINT) indicators such as email addresses, cryptocurrency wallets, usernames, and IP addresses.
 
+---
 
-Repo for UWSP Capstone 2025 
-This project focuses on developing an automated OSINT toolkit to help organizations or individuals gather and analyze intelligence from the dark web. Companies, cybersecurity teams, or law enforcement agencies could use this tool to monitor illicit activities, track threat actors, and analyze discussions on underground forums. Additionally, university students and researchers can use these tools to research hard to find information on the web. 
+## 🚀 Features
 
-Upon completion of this project, a customized importable Image will be presented to the client. This image will be an asset for use within the IA Lab professor Johnson uses during courses involving OSINT and threat intelligence. 
+- 🔍 Extracts:
+  - Email addresses
+  - Bitcoin & Monero wallet addresses
+  - Usernames (e.g. @example)
+  - IP addresses
+- 🌐 Supports multiple scraping methods:
+  - Hidden Wiki link discovery
+  - Manual input
+  - File-based list loading (CSV or TXT)
+- ⚙️ Configurable scraping limit
+- 📁 Saves results to `.json` and `.csv` files
+- 📄 Logs errors to timestamped `errors.log`
+- 🔐 Routes all traffic through Tor (`socks5h://127.0.0.1:9050`)
+- 💬 Built-in search tool for querying scraped data (`search_results.py`)
+- 🧪 Graceful error handling and retry logic
+- ✅ Pre-scrape Tor connectivity check
 
-Monitoring the dark web manually is time-consuming, inefficient, and risky. Analysts must manually browse hidden forums and marketplaces, extract relevant data, and try to identify threats. This approach takes too long, exposes researchers to security risks, and lacks scalability.  
+---
 
-This toolkit will automate web scraping and data analysis from the dark web. It will extract and structure information such as usernames, cryptocurrency addresses, and discussion topics, making it easier to analyze and identify risks saving companies time and money.  
+## 📦 Requirements
+
+- Python 3.6+
+- Tor service running locally (via Tor Browser or `tor` daemon)
+- Install dependencies using:
+
+```bash
+pip install -r requirements.txt
+
+⚙️ Usage
+python scraper.py --mode [hiddenwiki|manual|file] [--file onions.csv] [--limit 10]
+
+# Scrape from the Hidden Wiki (first 10 results)
+python scraper.py --mode hiddenwiki --limit 10
+
+# Scrape from manual input
+python scraper.py --mode manual
+
+# Scrape from a list in CSV or TXT file
+python scraper.py --mode file --file onions.csv --limit 20
+
+📁 Output
+results.json
+results.csv
+
+🔍 Searching Your Results
+Use search_results.py to search through collected OSINT data.
+
+python search_results.py
+
+Select field: Email, BTC, Monero, Username, IP
+View all unique values
+Filter by search term
+
