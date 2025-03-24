@@ -44,8 +44,8 @@ Other Options:
   --limit 10             → (Optional) Limit number of links to scrape.
 
 Examples:
-  python darkweb_scraper.py --mode hiddenwiki
-  python darkweb_scraper.py --mode file --file onions.csv --limit 10
+  python scraper.py --mode hiddenwiki
+  python scraper.py --mode file --file onions.csv --limit 10
 """,
     formatter_class=argparse.RawDescriptionHelpFormatter
 )
