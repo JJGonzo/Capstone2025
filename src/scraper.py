@@ -8,8 +8,9 @@ import json
 from datetime import datetime
 
 # Show friendly startup guide
-print("""
-Dark Web OSINT Scraper - Quick Start
+if len(sys.argv) == 1:
+    print("""
+🔍 Dark Web OSINT Scraper - Quick Start
 
 --mode hiddenwiki
     → Automatically pulls links from the Hidden Wiki.
