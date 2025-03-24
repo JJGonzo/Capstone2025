@@ -29,7 +29,6 @@ A Python-based tool that scrapes `.onion` websites on the Tor network for open s
 - Tor service running locally (via Tor Browser or `tor` daemon)
 - Install dependencies using:
 
-```bash
 pip install -r requirements.txt
 
 ⚙️ Usage
