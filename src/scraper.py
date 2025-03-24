@@ -24,9 +24,9 @@ Dark Web OSINT Scraper - Quick Start
     → (Optional) Limit how many links to scrape.
 
 Example Usage:
-    python scraper.py --mode hiddenwiki
+    python scraper.py --mode hiddenwiki --limit 10
     python scraper.py --mode manual
-    python scraper.py --mode file --file onions.csv --limit 10
+    python scraper.py --mode file --file onions.csv
 """)
 
 # Set up command-line arguments
