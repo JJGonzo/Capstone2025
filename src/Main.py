@@ -4,6 +4,7 @@ import re
 import csv
 import argparse
 import sys
+import json
 from datetime import datetime
 
 proxies = {
@@ -82,11 +83,11 @@ def scrape_site(url):
         if emails or bitcoin or monero or usernames or ips:
             return {
                 'url': url,
-                'emails': set(emails),
-                'bitcoin_addresses': set(bitcoin),
-                'monero_addresses': set(monero),
-                'usernames': set(usernames),
-                'ips': set(ips)
+                'emails': list(set(emails)),
+                'bitcoin_addresses': list(set(bitcoin)),
+                'monero_addresses': list(set(monero)),
+                'usernames': list(set(usernames)),
+                'ips': list(set(ips))
             }
         else:
             return None
@@ -109,6 +110,24 @@ def scrape_site(url):
         log_error(msg)
     return None
 
+def save_results_json(results, filename="results.json"):
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=4)
+
+def save_results_csv(results, filename="results.csv"):
+    with open(filename, mode='w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['URL', 'Emails', 'Bitcoin', 'Monero', 'Usernames', 'IPs'])
+        for r in results:
+            writer.writerow([
+                r['url'],
+                ", ".join(r['emails']),
+                ", ".join(r['bitcoin_addresses']),
+                ", ".join(r['monero_addresses']),
+                ", ".join(r['usernames']),
+                ", ".join(r['ips'])
+            ])
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Dark Web OSINT Scraper")
     parser.add_argument('--mode', choices=['hiddenwiki', 'manual', 'file'], required=True,
@@ -118,7 +137,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    # Load .onion links based on mode
     if args.mode == 'hiddenwiki':
         onion_urls = fetch_hidden_wiki_links()
     elif args.mode == 'manual':
@@ -135,12 +153,10 @@ if __name__ == '__main__':
     total_found = len(onion_urls)
     print(f"\nFound {total_found} onion links.")
 
-    # Apply scrape limit if specified
     if args.limit:
         onion_urls = onion_urls[:args.limit]
         print(f"Limiting scrape to first {args.limit} links.")
 
-    # Always confirm before scraping
     confirm = input(f"\nProceed with scraping {len(onion_urls)} links? (y/n): ").strip().lower()
     if confirm != 'y':
         print("Aborting scrape.")
@@ -166,3 +182,10 @@ if __name__ == '__main__':
     print("\n--- Summary ---")
     print(f"Total sites scraped: {len(onion_urls)}")
     print(f"Sites with OSINT data: {len(useful_results)}")
+
+    if useful_results:
+        save_results_csv(useful_results)
+        save_results_json(useful_results)
+        print("OSINT data saved to results.csv and results.json")
+    else:
+        print("No OSINT data collected, so no output files were saved.")
