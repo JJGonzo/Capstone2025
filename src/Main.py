@@ -2,6 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import csv
+import argparse
+import sys
+from datetime import datetime
 
 proxies = {
     'http': 'socks5h://127.0.0.1:9050',
@@ -58,6 +61,11 @@ def load_onion_links_from_file(filename):
         print(f"Error reading file: {e}")
         return []
 
+def log_error(message, log_file="errors.log"):
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    with open(log_file, "a", encoding='utf-8') as f:
+        f.write(f"[{timestamp}] {message}\n")
+
 def scrape_site(url):
     try:
         res = requests.get(url, proxies=proxies, timeout=15)
@@ -83,26 +91,62 @@ def scrape_site(url):
         else:
             return None
 
-    except requests.exceptions.RequestException:
-        print(f"[SKIPPED - Unreachable] {url}")
-        return None
+    except requests.exceptions.HTTPError as e:
+        msg = f"[HTTPError] {url} - {e}"
+    except requests.exceptions.ConnectionError as e:
+        msg = f"[ConnectionError] {url} - {e}"
+    except requests.exceptions.Timeout as e:
+        msg = f"[Timeout] {url} - {e}"
+    except requests.exceptions.RequestException as e:
+        msg = f"[RequestException] {url} - {e}"
     except Exception as e:
-        print(f"[SKIPPED - Error] {url}: {e}")
-        return None
+        msg = f"[Unexpected Error] {url} - {e}"
+    else:
+        msg = None
+
+    if msg:
+        print(f"[SKIPPED] {msg}")
+        log_error(msg)
+    return None
 
 if __name__ == '__main__':
-    # === SELECT YOUR INPUT MODE ===
-    
-    # Option 1: Use Hidden Wiki to fetch links
-    onion_urls = fetch_hidden_wiki_links()
+    parser = argparse.ArgumentParser(description="Dark Web OSINT Scraper")
+    parser.add_argument('--mode', choices=['hiddenwiki', 'manual', 'file'], required=True,
+                        help="Scraping mode: hiddenwiki | manual | file")
+    parser.add_argument('--file', type=str, help="Path to CSV or text file with .onion links (required if mode is 'file')")
+    parser.add_argument('--limit', type=int, default=None, help="Max number of onion links to scrape")
+    parser.add_argument('--yes', action='store_true', help="Skip confirmation prompt and auto-proceed")
 
-    # Option 2: Manually enter links
-    # onion_urls = load_onion_links_manual()
+    args = parser.parse_args()
 
-    # Option 3: Load from file (CSV or TXT with comma-separated or line-by-line .onion links)
-    # onion_urls = load_onion_links_from_file("onions.csv")
+    # Load .onion links based on mode
+    if args.mode == 'hiddenwiki':
+        onion_urls = fetch_hidden_wiki_links()
+    elif args.mode == 'manual':
+        onion_urls = load_onion_links_manual()
+    elif args.mode == 'file':
+        if not args.file:
+            print("Error: --file argument is required when using file mode.")
+            sys.exit(1)
+        onion_urls = load_onion_links_from_file(args.file)
+    else:
+        print("Invalid mode.")
+        sys.exit(1)
 
-    print(f"\nFound {len(onion_urls)} onion links to scrape.")
+    total_found = len(onion_urls)
+    print(f"\nFound {total_found} onion links.")
+
+    # Apply scrape limit if specified
+    if args.limit:
+        onion_urls = onion_urls[:args.limit]
+        print(f"Limiting scrape to first {args.limit} links.")
+
+    # Confirm before proceeding unless --yes is used
+    if not args.yes:
+        confirm = input(f"\nProceed with scraping {len(onion_urls)} links? (y/n): ").strip().lower()
+        if confirm != 'y':
+            print("Aborting scrape.")
+            sys.exit(0)
 
     useful_results = []
 
@@ -117,7 +161,6 @@ if __name__ == '__main__':
             if result['monero_addresses']: print(f"  Monero: {result['monero_addresses']}")
             if result['usernames']: print(f"  Usernames: {result['usernames']}")
             if result['ips']: print(f"  IPs: {result['ips']}")
-
             useful_results.append(result)
         else:
             print("No useful OSINT data found or site unreachable.")
