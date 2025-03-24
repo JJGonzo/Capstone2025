@@ -51,7 +51,7 @@ python scraper.py --mode file --file onions.csv
 
 
 ## 📁 Output
-results.json file will be created that you can open in your web browser for a clean list of OSINT Data
+results.json file will be created that you can open in your web browser for a clean list of OSINT Data also a results.csv file will also be created.
 
 ```bash
 python3 results.csv
@@ -61,13 +61,12 @@ python3 results.csv
 ## 🔍 Searching Your Results
 Use search_results.py to search through collected OSINT data.
 
-```bash
-python search_results.py
-```
-
 Select field: Email, BTC, Monero, Username, IP
 
 View all unique values
 
 Filter by search term
 
+```bash
+python3 search_results.py
+```
