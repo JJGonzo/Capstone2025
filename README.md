@@ -30,15 +30,15 @@ A Python-based tool that scrapes `.onion` websites on the Tor network for open s
 - Install dependencies using: pip install -r requirements.txt
 
 ## ⚙️ Usage
-Scrape from the Hidden Wiki (first 10 results)
+1. Scrape from the Hidden Wiki (first 10 results)
 
 python scraper.py --mode hiddenwiki --limit 10
 
-Scrape from manual input
+2. Scrape from manual input
 
 python scraper.py --mode manual
 
-Scrape from a list in CSV or TXT file
+3. Scrape from a list in CSV or TXT file
 
 python scraper.py --mode file --file onions.csv
 
@@ -53,6 +53,8 @@ Use search_results.py to search through collected OSINT data.
 python search_results.py
 
 Select field: Email, BTC, Monero, Username, IP
+
 View all unique values
+
 Filter by search term
 
