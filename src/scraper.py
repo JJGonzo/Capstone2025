@@ -10,7 +10,7 @@ from datetime import datetime
 # Show friendly startup guide
 if len(sys.argv) == 1:
     print("""
-🔍 Dark Web OSINT Scraper - Quick Start
+Dark Web OSINT Scraper - Quick Start
 
 --mode hiddenwiki
     → Automatically pulls links from the Hidden Wiki.
