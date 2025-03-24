@@ -29,7 +29,7 @@ A Python-based tool that scrapes `.onion` websites on the Tor network for open s
 - Tor service running locally (via Tor Browser or `tor` daemon)
 - Install dependencies using: pip install -r requirements.txt
 
-##⚙️ Usage
+## ⚙️ Usage
 python scraper.py --mode [hiddenwiki|manual|file] [--file onions.csv] [--limit 10]
 
 # Scrape from the Hidden Wiki (first 10 results)
@@ -41,11 +41,11 @@ python scraper.py --mode manual
 # Scrape from a list in CSV or TXT file
 python scraper.py --mode file --file onions.csv --limit 20
 
-##📁 Output
+## 📁 Output
 results.json
 results.csv
 
-##🔍 Searching Your Results
+## 🔍 Searching Your Results
 Use search_results.py to search through collected OSINT data.
 
 python search_results.py
