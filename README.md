@@ -31,8 +31,9 @@ A Python-based tool that scrapes `.onion` websites on the Tor network for open s
 - Install dependencies using: pip install -r requirements.txt
 
 ## ⚙️ Usage
-1. Scrape from the Hidden Wiki (first 10 results)
+### Scrape from the Hidden Wiki (first 10 results)
 
+```bash
 python scraper.py --mode hiddenwiki --limit 10
 
 2. Scrape from manual input
