@@ -30,8 +30,6 @@ A Python-based tool that scrapes `.onion` websites on the Tor network for open s
 - Install dependencies using: pip install -r requirements.txt
 
 ## ⚙️ Usage
-python scraper.py --mode [hiddenwiki|manual|file] [--file onions.csv] [--limit 10]
-
 Scrape from the Hidden Wiki (first 10 results)
 
 python scraper.py --mode hiddenwiki --limit 10
